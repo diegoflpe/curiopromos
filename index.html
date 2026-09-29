@@ -39,20 +39,11 @@
         .action-buttons { display: flex; gap: 10px; margin-top: 15px; }
         .btn-copy { background-color: var(--input-bg); color: var(--text-primary); border: 1px solid #444; flex: 1; }
         .btn-whatsapp { background-color: var(--accent-whatsapp); color: #fff; flex: 2; }
+        .btn-new { background-color: var(--accent-blue); color: #fff; flex: 1; }
         button:hover { opacity: 0.9; }
 
         .result-area { margin-top: 25px; display: none; }
         .result-box { background-color: #000; padding: 15px; border-radius: 8px; border: 1px solid #333; white-space: pre-wrap; font-family: monospace; font-size: 0.95rem; line-height: 1.5; color: #ddd; margin-bottom: 15px;}
-        
-        .image-preview {
-            width: 100%;
-            max-height: 250px;
-            object-fit: contain;
-            border-radius: 8px;
-            margin-bottom: 15px;
-            display: none;
-            background-color: #000;
-        }
     </style>
 </head>
 <body>
@@ -61,19 +52,13 @@
     <h1>Gerador de Ofertas ML</h1>
 
     <div class="input-group">
-        <label>🖼️ Link da Imagem do Produto</label>
-        <input type="url" id="imagem" placeholder="https://http2.mlstatic.com/..." oninput="atualizarPreview()">
+        <label>💬 Comentário Pessoal (Vai na 1ª linha)</label>
+        <textarea id="comentario" rows="2" placeholder="Ex: ACHADINHO DO DIA! Corre que é por tempo limitado..."></textarea>
     </div>
 
     <div class="input-group">
         <label>🔗 Link de Afiliado</label>
         <input type="url" id="link" placeholder="https://mercadolivre.com/sec/..." required>
-    </div>
-
-    <!-- Mudei a ordem visual do campo de comentário para cima, para ficar intuitivo -->
-    <div class="input-group">
-        <label>💬 Comentário Pessoal (Vai na 1ª linha)</label>
-        <textarea id="comentario" rows="2" placeholder="Ex: 🔥 ACHADINHO DO DIA! Corre que é por tempo limitado..."></textarea>
     </div>
 
     <div class="input-group">
@@ -106,37 +91,22 @@
     <button class="btn-generate" onclick="gerarAnuncio()">Gerar Anúncio ✨</button>
 
     <div class="result-area" id="resultArea">
-        <img id="previewImg" class="image-preview" src="" alt="Prévia da Imagem">
-        
         <label>Prévia do Anúncio:</label>
         <div class="result-box" id="resultBox"></div>
         
         <div class="action-buttons">
-            <button class="btn-copy" id="btnCopy" onclick="copiarTexto()">Copiar Texto 📋</button>
+            <button class="btn-copy" id="btnCopy" onclick="copiarTexto()">Copiar 📋</button>
             <button class="btn-whatsapp" id="btnWhatsapp" onclick="enviarWhatsApp()">
-                Enviar p/ WhatsApp 
+                WhatsApp 
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12.031 2C6.505 2 2 6.478 2 11.979c0 1.76.458 3.454 1.32 4.955L2 22l5.226-1.357a9.93 9.93 0 004.805 1.236h.004c5.523 0 10.027-4.478 10.027-9.979C22.062 6.478 17.558 2 12.031 2zm5.835 14.195c-.244.686-1.42 1.32-1.96 1.378-.54.058-1.054.267-3.556-.84-2.502-1.107-4.058-3.686-4.182-3.855-.124-.17-.99-1.32-.99-2.518 0-1.198.63-1.788.85-2.032.222-.244.48-.305.642-.305.16 0 .32.003.46.01.144.006.338-.055.527.402.19.456.65 1.59.708 1.708.058.118.096.256.018.41-.08.156-.156.252-.31.43-.15.18-.32.4-.458.528-.15.14-.3.294-.13.59.17.29.75 1.24 1.61 2.007.11.098.21.18.317.257.96.698 1.328.79 1.57.884.244.094.386.084.53-.056.14-.14.618-.72.783-.966.164-.244.328-.204.55-.12.224.084 1.41.666 1.65.786.24.12.4.18.46.28.06.1.06.586-.184 1.272z"/></svg>
             </button>
+            <button class="btn-new" onclick="limparTudo()">Novo 🔄</button>
         </div>
     </div>
 </div>
 
 <script>
     let textoGerado = "";
-
-    function atualizarPreview() {
-        const urlImagem = document.getElementById('imagem').value.trim();
-        const previewImg = document.getElementById('previewImg');
-        const resultArea = document.getElementById('resultArea');
-
-        if (urlImagem) {
-            previewImg.src = urlImagem;
-            previewImg.style.display = 'block';
-            resultArea.style.display = 'block';
-        } else {
-            previewImg.style.display = 'none';
-        }
-    }
 
     function gerarAnuncio() {
         const link = document.getElementById('link').value.trim();
@@ -146,7 +116,6 @@
         const cupom = document.getElementById('cupom').value.trim().toUpperCase();
         const precoCupom = parseFloat(document.getElementById('precoCupom').value);
         const comentario = document.getElementById('comentario').value.trim();
-        const urlImagem = document.getElementById('imagem').value.trim();
 
         if (!link || !titulo || isNaN(precoAtual)) {
             alert("Por favor, preencha o Link, Título e Preço Atual.");
@@ -157,9 +126,9 @@
 
         textoGerado = "";
 
-        // --- ALTERAÇÃO AQUI: Comentário Pessoal na primeira linha ---
+        // Comentário pessoal com emoji de pássaro 🐦
         if (comentario) {
-            textoGerado += `${comentario}\n\n`;
+            textoGerado += `🐦 ${comentario}\n\n`;
         }
         
         textoGerado += `🔥 ${titulo}\n\n`;
@@ -174,12 +143,29 @@
 
         document.getElementById('resultBox').textContent = textoGerado;
         document.getElementById('resultArea').style.display = 'block';
-        
-        if(urlImagem) {
-            atualizarPreview();
-        }
-
         document.getElementById('resultArea').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function limparTudo() {
+        // Limpa todos os campos
+        document.getElementById('comentario').value = '';
+        document.getElementById('link').value = '';
+        document.getElementById('titulo').value = '';
+        document.getElementById('precoAtual').value = '';
+        document.getElementById('precoAntigo').value = '';
+        document.getElementById('cupom').value = '';
+        document.getElementById('precoCupom').value = '';
+        
+        // Limpa o resultado
+        textoGerado = "";
+        document.getElementById('resultBox').textContent = '';
+        document.getElementById('resultArea').style.display = 'none';
+        
+        // Foca no primeiro campo
+        document.getElementById('comentario').focus();
+        
+        // Scroll para o topo
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     function copiarTexto() {
@@ -194,37 +180,26 @@
                 btn.innerHTML = textoOriginal;
                 btn.style.backgroundColor = "var(--input-bg)";
                 btn.style.color = "var(--text-primary)";
-            }, 2000);
+                // Limpa tudo após copiar
+                limparTudo();
+            }, 1500);
         });
     }
 
-    async function enviarWhatsApp() {
+    function enviarWhatsApp() {
         if (!textoGerado) {
             alert("Gere o anúncio primeiro!");
             return;
         }
 
-        const urlImagem = document.getElementById('imagem').value.trim();
-
-        if (urlImagem) {
-            try {
-                const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(urlImagem)}`;
-                const response = await fetch(proxyUrl);
-                const blob = await response.blob();
-                
-                const item = new ClipboardItem({ [blob.type]: blob });
-                await navigator.clipboard.write([item]);
-                
-                alert("✅ Texto e Imagem copiados!\n\nAgora é só abrir o WhatsApp, escolher o contato e COLAR.");
-            } catch (error) {
-                console.log("Erro ao copiar imagem:", error);
-                alert("⚠️ O texto foi copiado, mas a imagem não pôde ser copiada automaticamente. Salve a imagem e anexe manualmente.");
-            }
-        }
-
         const textoCodificado = encodeURIComponent(textoGerado);
         const urlWhatsApp = `https://api.whatsapp.com/send?text=${textoCodificado}`;
         window.open(urlWhatsApp, '_blank');
+        
+        // Limpa tudo após enviar
+        setTimeout(() => {
+            limparTudo();
+        }, 500);
     }
 </script>
 
