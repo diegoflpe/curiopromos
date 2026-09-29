@@ -52,11 +52,6 @@
     <h1>Gerador de Ofertas ML</h1>
 
     <div class="input-group">
-        <label>💬 Comentário Pessoal (Vai na 1ª linha)</label>
-        <textarea id="comentario" rows="2" placeholder="Ex: ACHADINHO DO DIA! Corre que é por tempo limitado..."></textarea>
-    </div>
-
-    <div class="input-group">
         <label>🔗 Link de Afiliado</label>
         <input type="url" id="link" placeholder="https://mercadolivre.com/sec/..." required>
     </div>
@@ -64,6 +59,11 @@
     <div class="input-group">
         <label>Aa Título do Produto</label>
         <input type="text" id="titulo" placeholder="Ex: Echo Dot (5ª geração)..." required>
+    </div>
+
+    <div class="input-group">
+        <label>💬 Comentário Pessoal (Vai na 1ª linha)</label>
+        <textarea id="comentario" rows="2" placeholder="Ex: ACHADINHO DO DIA! Corre que é por tempo limitado..."></textarea>
     </div>
 
     <div class="row">
@@ -126,12 +126,13 @@
 
         textoGerado = "";
 
-        // Comentário pessoal com emoji de pássaro 🐦
+        // Comentário pessoal na primeira linha (sem emoji)
         if (comentario) {
-            textoGerado += `🐦 ${comentario}\n\n`;
+            textoGerado += `${comentario}\n\n`;
         }
         
-        textoGerado += `🔥 ${titulo}\n\n`;
+        // Título do produto com emoji de pássaro 🐦
+        textoGerado += `🐦 ${titulo}\n\n`;
         if (!isNaN(precoAntigo) && precoAntigo > 0) textoGerado += `❌ De: ${formatarMoeda(precoAntigo)}\n`;
         textoGerado += `✅ Por: ${formatarMoeda(precoAtual)}\n`;
         if (cupom) {
@@ -148,9 +149,9 @@
 
     function limparTudo() {
         // Limpa todos os campos
-        document.getElementById('comentario').value = '';
         document.getElementById('link').value = '';
         document.getElementById('titulo').value = '';
+        document.getElementById('comentario').value = '';
         document.getElementById('precoAtual').value = '';
         document.getElementById('precoAntigo').value = '';
         document.getElementById('cupom').value = '';
@@ -161,8 +162,8 @@
         document.getElementById('resultBox').textContent = '';
         document.getElementById('resultArea').style.display = 'none';
         
-        // Foca no primeiro campo
-        document.getElementById('comentario').focus();
+        // Foca no primeiro campo (link)
+        document.getElementById('link').focus();
         
         // Scroll para o topo
         window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -180,7 +181,6 @@
                 btn.innerHTML = textoOriginal;
                 btn.style.backgroundColor = "var(--input-bg)";
                 btn.style.color = "var(--text-primary)";
-                // Limpa tudo após copiar
                 limparTudo();
             }, 1500);
         });
@@ -196,7 +196,6 @@
         const urlWhatsApp = `https://api.whatsapp.com/send?text=${textoCodificado}`;
         window.open(urlWhatsApp, '_blank');
         
-        // Limpa tudo após enviar
         setTimeout(() => {
             limparTudo();
         }, 500);
