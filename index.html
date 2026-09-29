@@ -62,13 +62,9 @@
         .result-area { margin-top: 25px; display: none; }
         .result-box { background-color: #000; padding: 15px; border-radius: 8px; border: 1px solid #333; white-space: pre-wrap; font-family: monospace; font-size: 0.95rem; line-height: 1.5; color: #ddd; margin-bottom: 15px;}
 
-        /* Templates de comentário */
         .templates { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
         .template-btn { padding: 6px 10px; background: var(--input-bg); border: 1px solid #444; border-radius: 20px; color: var(--text-secondary); font-size: 0.75rem; cursor: pointer; transition: all 0.2s; width: auto; margin: 0; }
         .template-btn:hover { background: var(--accent-green); color: #000; border-color: var(--accent-green); }
-
-        /* Card para exportar como imagem */
-        .export-card { display: none; }
 
         #cardPreview {
             position: fixed;
@@ -93,7 +89,6 @@
         #cardPreview .card-cta { background: var(--accent-green); color: #000; padding: 12px; border-radius: 10px; text-align: center; font-weight: bold; font-size: 1.1rem; margin-top: 15px; }
         #cardPreview .card-footer { text-align: center; font-size: 0.8rem; color: #666; margin-top: 15px; }
 
-        /* Lote */
         .batch-area { display: none; }
         .batch-progress { margin-top: 15px; background: var(--input-bg); border-radius: 8px; padding: 15px; display: none; }
         .batch-progress-bar { height: 8px; background: #333; border-radius: 4px; overflow: hidden; margin-top: 10px; }
@@ -106,7 +101,6 @@
         .batch-item-actions { display: flex; gap: 5px; margin-top: 8px; }
         .batch-item-actions button { padding: 6px 10px; font-size: 0.75rem; margin: 0; flex: 1; }
 
-        /* Toast */
         .toast {
             position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(100px);
             background: var(--accent-green); color: #000; padding: 12px 24px; border-radius: 30px;
@@ -133,7 +127,6 @@
         <div class="tab" onclick="mudarTab('lote', this)">📦 Lote</div>
     </div>
 
-    <!-- ===== MODO OFERTA ÚNICA ===== -->
     <div id="tabUnico">
         <div class="input-group">
             <label>🔗 Link de Afiliado</label>
@@ -203,7 +196,6 @@
         </div>
     </div>
 
-    <!-- ===== MODO LOTE ===== -->
     <div id="tabLote" class="batch-area">
         <div class="input-group">
             <label>🔗 Links de Afiliado (um por linha)</label>
@@ -232,7 +224,6 @@
     </div>
 </div>
 
-<!-- Card oculto para exportar como imagem -->
 <div id="cardPreview">
     <div class="card-header">
         <span class="card-logo">🐦</span>
@@ -249,7 +240,6 @@
     <div class="card-footer">Oferta sujeita a alteração de preço</div>
 </div>
 
-<!-- Toast -->
 <div class="toast" id="toast"></div>
 
 <script>
@@ -275,26 +265,163 @@
         document.getElementById('tabLote').style.display = tab === 'lote' ? 'block' : 'none';
     }
 
+    // ========== CORREÇÃO PROBLEMA 2: Evitar preview feio do link no WhatsApp ==========
+    // Estratégia: inserir um caractere invisível (zero-width space) entre https:// e o resto
+    // Assim o WhatsApp não reconhece como link e não gera preview
+    function ofuscarLink(url) {
+        // Substitui o "https://" por "https://" + espaço invisível
+        // O WhatsApp não detecta como URL, mas o usuário vê igual
+        return url.replace(/^https?:\/\//i, (match) => match + '\u200b');
+    }
+
     // ========== ITEM 1: COLAR LINK ==========
     async function colarLink() {
         try {
             const texto = await navigator.clipboard.readText();
             document.getElementById('link').value = texto;
             mostrarToast('Link colado! ✅');
-            // Tenta buscar automaticamente
             buscarDadosLink();
         } catch (err) {
             mostrarToast('Permissão negada. Cole manualmente (Ctrl+V).', true);
         }
     }
 
-    // ========== ITEM 3: TEMPLATES DE COMENTÁRIO ==========
+    // ========== ITEM 3: TEMPLATES ==========
     function usarTemplate(texto) {
         document.getElementById('comentario').value = texto;
         mostrarToast('Template aplicado! ✅');
     }
 
-    // ========== ITEM 6: DETECÇÃO AUTOMÁTICA DO TÍTULO ==========
+    // ========== CORREÇÃO PROBLEMA 1: Busca de dados mais robusta ==========
+    // Estratégia: tentar vários proxies em sequência + seguir redirecionamento do link de afiliado
+    
+    const PROXIES = [
+        // Proxy 1: allorigins (mais confiável atualmente)
+        (url) => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+        // Proxy 2: corsproxy.io
+        (url) => `https://corsproxy.io/?${encodeURIComponent(url)}`,
+        // Proxy 3: cors-anywhere alternativo
+        (url) => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
+    ];
+
+    async function fetchComProxy(url) {
+        let ultimoErro = null;
+        for (let i = 0; i < PROXIES.length; i++) {
+            try {
+                const proxyUrl = PROXIES[i](url);
+                console.log(`Tentando proxy ${i + 1}...`);
+                const response = await fetch(proxyUrl, {
+                    method: 'GET',
+                    headers: { 'Accept': 'text/html,application/xhtml+xml' }
+                });
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                const html = await response.text();
+                if (html && html.length > 500) return html;
+                throw new Error('Resposta vazia ou muito curta');
+            } catch (err) {
+                console.warn(`Proxy ${i + 1} falhou:`, err.message);
+                ultimoErro = err;
+            }
+        }
+        throw ultimoErro || new Error('Todos os proxies falharam');
+    }
+
+    // Extrai dados do HTML de forma robusta
+    function extrairDadosDoHTML(html) {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
+
+        let titulo = '';
+        let preco = null;
+        let imagem = '';
+
+        // === TÍTULO ===
+        // Tentativa 1: og:title
+        const ogTitle = doc.querySelector('meta[property="og:title"]');
+        if (ogTitle) titulo = ogTitle.getAttribute('content') || '';
+
+        // Tentativa 2: twitter:title
+        if (!titulo) {
+            const twTitle = doc.querySelector('meta[name="twitter:title"]');
+            if (twTitle) titulo = twTitle.getAttribute('content') || '';
+        }
+
+        // Tentativa 3: <title>
+        if (!titulo) {
+            const titleTag = doc.querySelector('title');
+            if (titleTag) titulo = titleTag.textContent || '';
+        }
+
+        // Tentativa 4: JSON-LD
+        if (!titulo) {
+            const scripts = doc.querySelectorAll('script[type="application/ld+json"]');
+            for (const s of scripts) {
+                try {
+                    const json = JSON.parse(s.textContent);
+                    if (json.name) { titulo = json.name; break; }
+                } catch (e) {}
+            }
+        }
+
+        // Limpa sufixos do ML
+        if (titulo) {
+            titulo = titulo
+                .replace(/\s*\|\s*Mercado Livre.*$/i, '')
+                .replace(/\s*-\s*Mercado Livre.*$/i, '')
+                .replace(/^Mercado Livre\s*[-|]\s*/i, '')
+                .replace(/\s*\|\s*MercadoLivre.*$/i, '')
+                .trim();
+        }
+
+        // === PREÇO ===
+        // Tentativa 1: meta product:price:amount
+        const ogPrice = doc.querySelector('meta[property="product:price:amount"]');
+        if (ogPrice) {
+            const val = parseFloat(ogPrice.getAttribute('content'));
+            if (!isNaN(val)) preco = val;
+        }
+
+        // Tentativa 2: JSON-LD
+        if (!preco) {
+            const scripts = doc.querySelectorAll('script[type="application/ld+json"]');
+            for (const s of scripts) {
+                try {
+                    const json = JSON.parse(s.textContent);
+                    if (json.offers) {
+                        if (json.offers.price) { preco = parseFloat(json.offers.price); break; }
+                        if (Array.isArray(json.offers) && json.offers[0]?.price) {
+                            preco = parseFloat(json.offers[0].price); break;
+                        }
+                    }
+                } catch (e) {}
+            }
+        }
+
+        // Tentativa 3: meta og:price:amount
+        if (!preco) {
+            const ogP = doc.querySelector('meta[property="og:price:amount"]');
+            if (ogP) {
+                const val = parseFloat(ogP.getAttribute('content'));
+                if (!isNaN(val)) preco = val;
+            }
+        }
+
+        // Tentativa 4: regex no HTML bruto (procura por "price" seguido de número)
+        if (!preco) {
+            const match = html.match(/"price"\s*:\s*"?(\d+(?:[.,]\d+)?)"?/i);
+            if (match) {
+                const val = parseFloat(match[1].replace(',', '.'));
+                if (!isNaN(val) && val > 0) preco = val;
+            }
+        }
+
+        // === IMAGEM (bônus) ===
+        const ogImage = doc.querySelector('meta[property="og:image"]');
+        if (ogImage) imagem = ogImage.getAttribute('content') || '';
+
+        return { titulo, preco, imagem };
+    }
+
     async function buscarDadosLink() {
         const link = document.getElementById('link').value.trim();
         if (!link) {
@@ -306,61 +433,20 @@
         if (btnBuscar) { btnBuscar.innerHTML = '<span class="loading"></span>'; btnBuscar.disabled = true; }
 
         try {
-            // Usa proxy CORS para contornar bloqueio do ML
-            const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(link)}`;
-            const response = await fetch(proxyUrl);
-            const html = await response.text();
+            const html = await fetchComProxy(link);
+            const dados = extrairDadosDoHTML(html);
 
-            // Parse do HTML
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(html, 'text/html');
-
-            // Tenta pegar o título (meta og:title ou title)
-            let titulo = '';
-            const ogTitle = doc.querySelector('meta[property="og:title"]');
-            if (ogTitle) titulo = ogTitle.getAttribute('content');
-
-            // Fallback: título da página
-            if (!titulo) {
-                const titleTag = doc.querySelector('title');
-                if (titleTag) titulo = titleTag.textContent;
+            if (dados.titulo) {
+                document.getElementById('titulo').value = dados.titulo;
+            }
+            if (dados.preco) {
+                document.getElementById('precoAtual').value = dados.preco.toFixed(2);
             }
 
-            // Limpa o título (remove sufixos do ML)
-            if (titulo) {
-                titulo = titulo
-                    .replace(/\s*\|\s*Mercado Livre.*$/i, '')
-                    .replace(/\s*-\s*Mercado Livre.*$/i, '')
-                    .replace(/^Mercado Livre\s*[-|]\s*/i, '')
-                    .trim();
-                document.getElementById('titulo').value = titulo;
-            }
-
-            // Tenta pegar preço (meta og:price ou JSON-LD)
-            let preco = null;
-            const ogPrice = doc.querySelector('meta[property="product:price:amount"]');
-            if (ogPrice) preco = parseFloat(ogPrice.getAttribute('content'));
-
-            if (!preco) {
-                // Tenta pegar do JSON-LD
-                const scripts = doc.querySelectorAll('script[type="application/ld+json"]');
-                for (const s of scripts) {
-                    try {
-                        const json = JSON.parse(s.textContent);
-                        if (json.offers?.price) { preco = parseFloat(json.offers.price); break; }
-                        if (Array.isArray(json.offers) && json.offers[0]?.price) { preco = parseFloat(json.offers[0].price); break; }
-                    } catch (e) {}
-                }
-            }
-
-            if (preco) {
-                document.getElementById('precoAtual').value = preco.toFixed(2);
-            }
-
-            if (titulo && preco) {
+            if (dados.titulo && dados.preco) {
                 mostrarToast('Título e preço detectados! ✅');
-            } else if (titulo) {
-                mostrarToast('Título detectado! Preço preencha manualmente.');
+            } else if (dados.titulo) {
+                mostrarToast('Título detectado! Preencha o preço manualmente.');
             } else {
                 mostrarToast('Não consegui detectar. Preencha manualmente.', true);
             }
@@ -387,7 +473,6 @@
             return;
         }
 
-        // Calcula % OFF
         let desconto = '';
         if (!isNaN(precoAntigo) && precoAntigo > 0 && precoAntigo > precoAtual) {
             const pct = Math.round(((precoAntigo - precoAtual) / precoAntigo) * 100);
@@ -405,8 +490,7 @@
         }
         textoGerado += `\n👉 ${link}`;
 
-        // Salva dados para exportação de imagem
-        dadosAtuais = { comentario, titulo, precoAtual, precoAntigo, cupom, precoCupom, desconto };
+        dadosAtuais = { comentario, titulo, precoAtual, precoAntigo, cupom, precoCupom, desconto, link };
 
         document.getElementById('resultBox').textContent = textoGerado;
         document.getElementById('resultArea').style.display = 'block';
@@ -414,7 +498,6 @@
         mostrarToast('Anúncio gerado! 🎉');
     }
 
-    // ========== LIMPAR ==========
     function limparTudo() {
         ['link','titulo','comentario','precoAtual','precoAntigo','cupom','precoCupom'].forEach(id => {
             document.getElementById(id).value = '';
@@ -426,10 +509,14 @@
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    // ========== COPIAR ==========
     function copiarTexto() {
         if(!textoGerado) return;
-        navigator.clipboard.writeText(textoGerado).then(() => {
+        // Usa a versão ofuscada para não gerar preview
+        const textoCopia = textoGerado.replace(
+            /(👉\s*)(https?:\/\/\S+)/i,
+            (m, prefixo, url) => prefixo + ofuscarLink(url)
+        );
+        navigator.clipboard.writeText(textoCopia).then(() => {
             const btn = document.getElementById('btnCopy');
             const original = btn.innerHTML;
             btn.innerHTML = "Copiado! ✅";
@@ -444,22 +531,29 @@
         });
     }
 
-    // ========== WHATSAPP ==========
+    // ========== CORREÇÃO PROBLEMA 2: WhatsApp sem preview ==========
     function enviarWhatsApp() {
         if (!textoGerado) { mostrarToast('Gere o anúncio primeiro!', true); return; }
-        const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(textoGerado)}`;
+        
+        // Substitui o link normal pelo ofuscado (com zero-width space)
+        // Assim o WhatsApp não gera o card de preview
+        const textoLimpo = textoGerado.replace(
+            /(👉\s*)(https?:\/\/\S+)/i,
+            (m, prefixo, url) => prefixo + ofuscarLink(url)
+        );
+        
+        const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(textoLimpo)}`;
         window.open(url, '_blank');
         setTimeout(() => limparTudo(), 500);
     }
 
-    // ========== ITEM 11 + 13: EXPORTAR COMO IMAGEM ==========
+    // ========== EXPORTAR IMAGEM ==========
     async function exportarImagem() {
         if (!textoGerado) { mostrarToast('Gere o anúncio primeiro!', true); return; }
 
         const card = document.getElementById('cardPreview');
         const d = dadosAtuais;
 
-        // Preenche o card
         document.getElementById('cardComment').textContent = d.comentario || '';
         document.getElementById('cardComment').style.display = d.comentario ? 'block' : 'none';
         document.getElementById('cardTitle').textContent = `🐦 ${d.titulo}`;
@@ -480,7 +574,6 @@
             document.getElementById('cardCoupon').style.display = 'none';
         }
 
-        // Espera um tick para renderizar
         await new Promise(r => setTimeout(r, 100));
 
         try {
@@ -491,7 +584,6 @@
                 logging: false
             });
 
-            // Download
             canvas.toBlob(blob => {
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
@@ -507,7 +599,7 @@
         }
     }
 
-    // ========== ITEM 16: MÚLTIPLAS OFERTAS EM LOTE ==========
+    // ========== LOTE ==========
     async function processarLote() {
         const linksTexto = document.getElementById('linksLote').value.trim();
         const comentarioPadrao = document.getElementById('comentarioLote').value.trim();
@@ -544,58 +636,29 @@
             list.appendChild(item);
 
             try {
-                // Busca dados do link
-                const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(link)}`;
-                const response = await fetch(proxyUrl);
-                const html = await response.text();
-                const parser = new DOMParser();
-                const doc = parser.parseFromString(html, 'text/html');
+                const html = await fetchComProxy(link);
+                const dados = extrairDadosDoHTML(html);
 
-                let titulo = '';
-                const ogTitle = doc.querySelector('meta[property="og:title"]');
-                if (ogTitle) titulo = ogTitle.getAttribute('content');
-                if (!titulo) {
-                    const t = doc.querySelector('title');
-                    if (t) titulo = t.textContent;
-                }
-                if (titulo) {
-                    titulo = titulo.replace(/\s*\|\s*Mercado Livre.*$/i, '')
-                                   .replace(/\s*-\s*Mercado Livre.*$/i, '')
-                                   .replace(/^Mercado Livre\s*[-|]\s*/i, '')
-                                   .trim();
-                }
+                if (!dados.titulo || !dados.preco) throw new Error('Dados incompletos');
 
-                let preco = null;
-                const ogPrice = doc.querySelector('meta[property="product:price:amount"]');
-                if (ogPrice) preco = parseFloat(ogPrice.getAttribute('content'));
-
-                if (!preco) {
-                    const scripts = doc.querySelectorAll('script[type="application/ld+json"]');
-                    for (const s of scripts) {
-                        try {
-                            const json = JSON.parse(s.textContent);
-                            if (json.offers?.price) { preco = parseFloat(json.offers.price); break; }
-                            if (Array.isArray(json.offers) && json.offers[0]?.price) { preco = parseFloat(json.offers[0].price); break; }
-                        } catch (e) {}
-                    }
-                }
-
-                if (!titulo || !preco) throw new Error('Dados incompletos');
-
-                // Monta o texto
                 let texto = '';
                 if (comentarioPadrao) texto += `${comentarioPadrao}\n\n`;
-                texto += `🐦 ${titulo}\n\n`;
-                texto += `✅ Por: ${formatarMoeda(preco)}\n`;
+                texto += `🐦 ${dados.titulo}\n\n`;
+                texto += `✅ Por: ${formatarMoeda(dados.preco)}\n`;
                 texto += `\n👉 ${link}`;
+
+                const textoComLinkOfuscado = texto.replace(
+                    /(👉\s*)(https?:\/\/\S+)/i,
+                    (m, prefixo, url) => prefixo + ofuscarLink(url)
+                );
 
                 item.className = 'batch-item';
                 item.innerHTML = `
-                    <div class="batch-item-title">✅ ${titulo}</div>
+                    <div class="batch-item-title">✅ ${dados.titulo}</div>
                     <div class="batch-item-text">${texto}</div>
                     <div class="batch-item-actions">
-                        <button class="btn-copy" onclick="copiarTextoItem(\`${texto.replace(/`/g, '\\`')}\`)">Copiar 📋</button>
-                        <button class="btn-whatsapp" onclick="enviarWhatsItem(\`${texto.replace(/`/g, '\\`')}\`)">WhatsApp</button>
+                        <button class="btn-copy" onclick="copiarTextoItem(\`${textoComLinkOfuscado.replace(/`/g, '\\`')}\`)">Copiar 📋</button>
+                        <button class="btn-whatsapp" onclick="enviarWhatsItem(\`${textoComLinkOfuscado.replace(/`/g, '\\`')}\`)">WhatsApp</button>
                     </div>
                 `;
                 sucessos++;
@@ -610,8 +673,7 @@
             processados++;
             fill.style.width = `${(processados / links.length) * 100}%`;
 
-            // Pequeno delay para não sobrecarregar o proxy
-            await new Promise(r => setTimeout(r, 800));
+            await new Promise(r => setTimeout(r, 1000));
         }
 
         status.textContent = `Concluído! ${sucessos}/${links.length} com sucesso.`;
@@ -626,7 +688,6 @@
         window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(texto)}`, '_blank');
     }
 
-    // Enter avança para o próximo campo
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' && e.target.tagName === 'INPUT' && !e.shiftKey) {
             e.preventDefault();
