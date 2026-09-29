@@ -66,6 +66,51 @@
         .template-btn { padding: 6px 10px; background: var(--input-bg); border: 1px solid #444; border-radius: 20px; color: var(--text-secondary); font-size: 0.75rem; cursor: pointer; transition: all 0.2s; width: auto; margin: 0; }
         .template-btn:hover { background: var(--accent-green); color: #000; border-color: var(--accent-green); }
 
+        /* Preview da imagem do produto */
+        .image-preview-area {
+            display: none;
+            margin-top: 15px;
+            background: var(--input-bg);
+            border-radius: 12px;
+            padding: 15px;
+            border: 1px solid #333;
+        }
+        .image-preview-area.visible { display: block; }
+        .image-preview-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .image-preview-header span {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+        .image-preview-img {
+            width: 100%;
+            max-height: 300px;
+            object-fit: contain;
+            border-radius: 8px;
+            background: #000;
+            display: block;
+        }
+        .image-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+        }
+        .image-actions button {
+            flex: 1;
+            margin: 0;
+            padding: 10px;
+            font-size: 0.85rem;
+        }
+        .btn-copy-img { background: var(--accent-purple); color: #fff; }
+        .btn-download-img { background: var(--accent-blue); color: #fff; }
+        .btn-close-img { background: var(--input-bg); color: var(--text-primary); border: 1px solid #444; }
+
+        /* Card para exportar como imagem */
         #cardPreview {
             position: fixed;
             left: -9999px;
@@ -133,9 +178,22 @@
             <div class="input-with-btn">
                 <input type="url" id="link" placeholder="https://mercadolivre.com/sec/...">
                 <button class="btn-paste" onclick="colarLink()" title="Colar da área de transferência">📋</button>
-                <button class="btn-paste" onclick="buscarDadosLink()" title="Buscar dados do produto">🔍</button>
+                <button class="btn-paste" onclick="buscarImagem()" title="Buscar imagem do produto">🖼️</button>
             </div>
-            <div class="helper-text">Dica: o botão 🔍 tenta puxar o título automaticamente.</div>
+            <div class="helper-text">Dica: o botão 🖼️ busca a imagem do produto automaticamente.</div>
+        </div>
+
+        <!-- Preview da imagem do produto -->
+        <div class="image-preview-area" id="imagePreviewArea">
+            <div class="image-preview-header">
+                <span>🖼️ Imagem do Produto</span>
+            </div>
+            <img id="imagePreviewImg" class="image-preview-img" src="" alt="Imagem do produto">
+            <div class="image-actions">
+                <button class="btn-copy-img" onclick="copiarImagem()">Copiar Imagem 📋</button>
+                <button class="btn-download-img" onclick="baixarImagem()">Baixar 💾</button>
+                <button class="btn-close-img" onclick="fecharImagem()">Fechar ✖</button>
+            </div>
         </div>
 
         <div class="input-group">
@@ -200,7 +258,7 @@
         <div class="input-group">
             <label>🔗 Links de Afiliado (um por linha)</label>
             <textarea id="linksLote" rows="6" placeholder="https://mercadolivre.com/sec/abc123&#10;https://mercadolivre.com/sec/def456&#10;https://mercadolivre.com/sec/ghi789"></textarea>
-            <div class="helper-text">Cole vários links (um por linha). O sistema tentará buscar título e preço automaticamente.</div>
+            <div class="helper-text">Cole vários links (um por linha). O sistema tentará buscar a imagem automaticamente.</div>
         </div>
 
         <div class="input-group">
@@ -245,6 +303,7 @@
 <script>
     let textoGerado = "";
     let dadosAtuais = {};
+    let imagemAtualUrl = "";
 
     // ========== UTILITÁRIOS ==========
     function mostrarToast(msg, isError = false) {
@@ -265,42 +324,32 @@
         document.getElementById('tabLote').style.display = tab === 'lote' ? 'block' : 'none';
     }
 
-    // ========== CORREÇÃO PROBLEMA 2: Evitar preview feio do link no WhatsApp ==========
-    // Estratégia: inserir um caractere invisível (zero-width space) entre https:// e o resto
-    // Assim o WhatsApp não reconhece como link e não gera preview
+    // ========== OFUSCAR LINK (evita preview feio no WhatsApp) ==========
     function ofuscarLink(url) {
-        // Substitui o "https://" por "https://" + espaço invisível
-        // O WhatsApp não detecta como URL, mas o usuário vê igual
         return url.replace(/^https?:\/\//i, (match) => match + '\u200b');
     }
 
-    // ========== ITEM 1: COLAR LINK ==========
+    // ========== COLAR LINK ==========
     async function colarLink() {
         try {
             const texto = await navigator.clipboard.readText();
             document.getElementById('link').value = texto;
             mostrarToast('Link colado! ✅');
-            buscarDadosLink();
         } catch (err) {
             mostrarToast('Permissão negada. Cole manualmente (Ctrl+V).', true);
         }
     }
 
-    // ========== ITEM 3: TEMPLATES ==========
+    // ========== TEMPLATES ==========
     function usarTemplate(texto) {
         document.getElementById('comentario').value = texto;
         mostrarToast('Template aplicado! ✅');
     }
 
-    // ========== CORREÇÃO PROBLEMA 1: Busca de dados mais robusta ==========
-    // Estratégia: tentar vários proxies em sequência + seguir redirecionamento do link de afiliado
-    
+    // ========== BUSCAR IMAGEM (NOVO - SÓ IMAGEM) ==========
     const PROXIES = [
-        // Proxy 1: allorigins (mais confiável atualmente)
         (url) => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
-        // Proxy 2: corsproxy.io
         (url) => `https://corsproxy.io/?${encodeURIComponent(url)}`,
-        // Proxy 3: cors-anywhere alternativo
         (url) => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
     ];
 
@@ -309,153 +358,159 @@
         for (let i = 0; i < PROXIES.length; i++) {
             try {
                 const proxyUrl = PROXIES[i](url);
-                console.log(`Tentando proxy ${i + 1}...`);
-                const response = await fetch(proxyUrl, {
-                    method: 'GET',
-                    headers: { 'Accept': 'text/html,application/xhtml+xml' }
-                });
+                console.log(`[Proxy ${i + 1}] Tentando:`, proxyUrl);
+                const response = await fetch(proxyUrl);
                 if (!response.ok) throw new Error(`HTTP ${response.status}`);
                 const html = await response.text();
-                if (html && html.length > 500) return html;
-                throw new Error('Resposta vazia ou muito curta');
+                if (html && html.length > 500) {
+                    console.log(`[Proxy ${i + 1}] ✅ Sucesso (${html.length} chars)`);
+                    return html;
+                }
+                throw new Error('Resposta vazia');
             } catch (err) {
-                console.warn(`Proxy ${i + 1} falhou:`, err.message);
+                console.warn(`[Proxy ${i + 1}] ❌ Falhou:`, err.message);
                 ultimoErro = err;
             }
         }
         throw ultimoErro || new Error('Todos os proxies falharam');
     }
 
-    // Extrai dados do HTML de forma robusta
-    function extrairDadosDoHTML(html) {
+    // Extrai APENAS a imagem do HTML
+    function extrairImagemDoHTML(html) {
         const parser = new DOMParser();
         const doc = parser.parseFromString(html, 'text/html');
 
-        let titulo = '';
-        let preco = null;
         let imagem = '';
 
-        // === TÍTULO ===
-        // Tentativa 1: og:title
-        const ogTitle = doc.querySelector('meta[property="og:title"]');
-        if (ogTitle) titulo = ogTitle.getAttribute('content') || '';
+        // Tentativa 1: og:image (mais confiável)
+        const ogImage = doc.querySelector('meta[property="og:image"]');
+        if (ogImage) imagem = ogImage.getAttribute('content') || '';
 
-        // Tentativa 2: twitter:title
-        if (!titulo) {
-            const twTitle = doc.querySelector('meta[name="twitter:title"]');
-            if (twTitle) titulo = twTitle.getAttribute('content') || '';
+        // Tentativa 2: twitter:image
+        if (!imagem) {
+            const twImage = doc.querySelector('meta[name="twitter:image"]');
+            if (twImage) imagem = twImage.getAttribute('content') || '';
         }
 
-        // Tentativa 3: <title>
-        if (!titulo) {
-            const titleTag = doc.querySelector('title');
-            if (titleTag) titulo = titleTag.textContent || '';
-        }
-
-        // Tentativa 4: JSON-LD
-        if (!titulo) {
+        // Tentativa 3: JSON-LD
+        if (!imagem) {
             const scripts = doc.querySelectorAll('script[type="application/ld+json"]');
             for (const s of scripts) {
                 try {
                     const json = JSON.parse(s.textContent);
-                    if (json.name) { titulo = json.name; break; }
-                } catch (e) {}
-            }
-        }
-
-        // Limpa sufixos do ML
-        if (titulo) {
-            titulo = titulo
-                .replace(/\s*\|\s*Mercado Livre.*$/i, '')
-                .replace(/\s*-\s*Mercado Livre.*$/i, '')
-                .replace(/^Mercado Livre\s*[-|]\s*/i, '')
-                .replace(/\s*\|\s*MercadoLivre.*$/i, '')
-                .trim();
-        }
-
-        // === PREÇO ===
-        // Tentativa 1: meta product:price:amount
-        const ogPrice = doc.querySelector('meta[property="product:price:amount"]');
-        if (ogPrice) {
-            const val = parseFloat(ogPrice.getAttribute('content'));
-            if (!isNaN(val)) preco = val;
-        }
-
-        // Tentativa 2: JSON-LD
-        if (!preco) {
-            const scripts = doc.querySelectorAll('script[type="application/ld+json"]');
-            for (const s of scripts) {
-                try {
-                    const json = JSON.parse(s.textContent);
-                    if (json.offers) {
-                        if (json.offers.price) { preco = parseFloat(json.offers.price); break; }
-                        if (Array.isArray(json.offers) && json.offers[0]?.price) {
-                            preco = parseFloat(json.offers[0].price); break;
-                        }
+                    if (json.image) {
+                        if (typeof json.image === 'string') { imagem = json.image; break; }
+                        if (Array.isArray(json.image) && json.image[0]) { imagem = json.image[0]; break; }
                     }
                 } catch (e) {}
             }
         }
 
-        // Tentativa 3: meta og:price:amount
-        if (!preco) {
-            const ogP = doc.querySelector('meta[property="og:price:amount"]');
-            if (ogP) {
-                const val = parseFloat(ogP.getAttribute('content'));
-                if (!isNaN(val)) preco = val;
-            }
+        // Tentativa 4: regex no HTML bruto
+        if (!imagem) {
+            const match = html.match(/og:image["']\s+content=["']([^"']+)/i);
+            if (match) imagem = match[1];
         }
 
-        // Tentativa 4: regex no HTML bruto (procura por "price" seguido de número)
-        if (!preco) {
-            const match = html.match(/"price"\s*:\s*"?(\d+(?:[.,]\d+)?)"?/i);
-            if (match) {
-                const val = parseFloat(match[1].replace(',', '.'));
-                if (!isNaN(val) && val > 0) preco = val;
-            }
-        }
-
-        // === IMAGEM (bônus) ===
-        const ogImage = doc.querySelector('meta[property="og:image"]');
-        if (ogImage) imagem = ogImage.getAttribute('content') || '';
-
-        return { titulo, preco, imagem };
+        return imagem;
     }
 
-    async function buscarDadosLink() {
+    async function buscarImagem() {
         const link = document.getElementById('link').value.trim();
         if (!link) {
             mostrarToast('Cole um link primeiro.', true);
             return;
         }
 
-        const btnBuscar = event?.target;
-        if (btnBuscar) { btnBuscar.innerHTML = '<span class="loading"></span>'; btnBuscar.disabled = true; }
+        const btn = event?.target;
+        if (btn) { btn.innerHTML = '<span class="loading"></span>'; btn.disabled = true; }
 
         try {
             const html = await fetchComProxy(link);
-            const dados = extrairDadosDoHTML(html);
+            const imagemUrl = extrairImagemDoHTML(html);
 
-            if (dados.titulo) {
-                document.getElementById('titulo').value = dados.titulo;
-            }
-            if (dados.preco) {
-                document.getElementById('precoAtual').value = dados.preco.toFixed(2);
+            if (!imagemUrl) {
+                mostrarToast('Não encontrei imagem nesse link.', true);
+                return;
             }
 
-            if (dados.titulo && dados.preco) {
-                mostrarToast('Título e preço detectados! ✅');
-            } else if (dados.titulo) {
-                mostrarToast('Título detectado! Preencha o preço manualmente.');
-            } else {
-                mostrarToast('Não consegui detectar. Preencha manualmente.', true);
-            }
+            // Normaliza URL (remove parâmetros de tamanho pra pegar imagem grande)
+            let urlLimpa = imagemUrl
+                .replace(/-[A-Z]\.jpg/i, '-O.jpg')  // tenta pegar versão original
+                .replace(/\/\d+x\d+\//, '/');        // remove dimensões forçadas
+
+            imagemAtualUrl = urlLimpa;
+
+            // Mostra preview
+            const img = document.getElementById('imagePreviewImg');
+            img.src = urlLimpa;
+            img.onerror = () => {
+                // Fallback: usa URL original se a limpa falhar
+                img.src = imagemUrl;
+                imagemAtualUrl = imagemUrl;
+            };
+
+            document.getElementById('imagePreviewArea').classList.add('visible');
+            mostrarToast('Imagem encontrada! 🖼️');
         } catch (err) {
             console.error(err);
-            mostrarToast('Erro ao buscar dados. Preencha manualmente.', true);
+            mostrarToast('Erro ao buscar imagem. Tente novamente.', true);
         } finally {
-            if (btnBuscar) { btnBuscar.innerHTML = '🔍'; btnBuscar.disabled = false; }
+            if (btn) { btn.innerHTML = '🖼️'; btn.disabled = false; }
         }
+    }
+
+    // ========== COPIAR IMAGEM PARA ÁREA DE TRANSFERÊNCIA ==========
+    async function copiarImagem() {
+        if (!imagemAtualUrl) {
+            mostrarToast('Nenhuma imagem para copiar.', true);
+            return;
+        }
+
+        try {
+            mostrarToast('Copiando imagem... ⏳');
+
+            // Busca a imagem via proxy (pra evitar CORS)
+            const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(imagemAtualUrl)}`;
+            const response = await fetch(proxyUrl);
+            const blob = await response.blob();
+
+            // Verifica se o navegador suporta ClipboardItem
+            if (!navigator.clipboard || !window.ClipboardItem) {
+                throw new Error('Navegador não suporta cópia de imagem');
+            }
+
+            // Copia para área de transferência
+            const item = new ClipboardItem({ [blob.type]: blob });
+            await navigator.clipboard.write([item]);
+
+            mostrarToast('Imagem copiada! Cole no WhatsApp 📋');
+        } catch (err) {
+            console.error(err);
+            mostrarToast('Não consegui copiar. Use o botão Baixar 💾', true);
+        }
+    }
+
+    // ========== BAIXAR IMAGEM ==========
+    function baixarImagem() {
+        if (!imagemAtualUrl) {
+            mostrarToast('Nenhuma imagem para baixar.', true);
+            return;
+        }
+
+        const a = document.createElement('a');
+        a.href = imagemAtualUrl;
+        a.download = `produto-${Date.now()}.jpg`;
+        a.target = '_blank';
+        a.click();
+        mostrarToast('Download iniciado! 💾');
+    }
+
+    // ========== FECHAR PREVIEW DE IMAGEM ==========
+    function fecharImagem() {
+        document.getElementById('imagePreviewArea').classList.remove('visible');
+        document.getElementById('imagePreviewImg').src = '';
+        imagemAtualUrl = '';
     }
 
     // ========== GERAR ANÚNCIO ==========
@@ -505,13 +560,14 @@
         textoGerado = "";
         document.getElementById('resultBox').textContent = '';
         document.getElementById('resultArea').style.display = 'none';
+        fecharImagem();
         document.getElementById('link').focus();
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
+    // ========== COPIAR TEXTO (com link ofuscado) ==========
     function copiarTexto() {
         if(!textoGerado) return;
-        // Usa a versão ofuscada para não gerar preview
         const textoCopia = textoGerado.replace(
             /(👉\s*)(https?:\/\/\S+)/i,
             (m, prefixo, url) => prefixo + ofuscarLink(url)
@@ -526,28 +582,37 @@
                 btn.innerHTML = original;
                 btn.style.backgroundColor = "var(--input-bg)";
                 btn.style.color = "var(--text-primary)";
-                limparTudo();
             }, 1500);
         });
     }
 
-    // ========== CORREÇÃO PROBLEMA 2: WhatsApp sem preview ==========
+    // ========== WHATSAPP (sem preview + lembrete de imagem) ==========
     function enviarWhatsApp() {
         if (!textoGerado) { mostrarToast('Gere o anúncio primeiro!', true); return; }
-        
-        // Substitui o link normal pelo ofuscado (com zero-width space)
-        // Assim o WhatsApp não gera o card de preview
+
+        // Ofusca o link para não gerar preview feio
         const textoLimpo = textoGerado.replace(
             /(👉\s*)(https?:\/\/\S+)/i,
             (m, prefixo, url) => prefixo + ofuscarLink(url)
         );
-        
+
+        // Copia a imagem automaticamente se tiver
+        if (imagemAtualUrl) {
+            copiarImagem().catch(() => {});
+        }
+
         const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(textoLimpo)}`;
         window.open(url, '_blank');
-        setTimeout(() => limparTudo(), 500);
+
+        // Avisa o usuário pra colar a imagem
+        if (imagemAtualUrl) {
+            setTimeout(() => {
+                mostrarToast('💡 Cole a imagem no WhatsApp (Ctrl+V)');
+            }, 1500);
+        }
     }
 
-    // ========== EXPORTAR IMAGEM ==========
+    // ========== EXPORTAR IMAGEM (card) ==========
     async function exportarImagem() {
         if (!textoGerado) { mostrarToast('Gere o anúncio primeiro!', true); return; }
 
@@ -637,28 +702,20 @@
 
             try {
                 const html = await fetchComProxy(link);
-                const dados = extrairDadosDoHTML(html);
+                const imagemUrl = extrairImagemDoHTML(html);
 
-                if (!dados.titulo || !dados.preco) throw new Error('Dados incompletos');
+                if (!imagemUrl) throw new Error('Sem imagem');
 
-                let texto = '';
-                if (comentarioPadrao) texto += `${comentarioPadrao}\n\n`;
-                texto += `🐦 ${dados.titulo}\n\n`;
-                texto += `✅ Por: ${formatarMoeda(dados.preco)}\n`;
-                texto += `\n👉 ${link}`;
-
-                const textoComLinkOfuscado = texto.replace(
-                    /(👉\s*)(https?:\/\/\S+)/i,
-                    (m, prefixo, url) => prefixo + ofuscarLink(url)
-                );
+                const textoComLinkOfuscado = `👉 ${ofuscarLink(link)}`;
 
                 item.className = 'batch-item';
                 item.innerHTML = `
-                    <div class="batch-item-title">✅ ${dados.titulo}</div>
-                    <div class="batch-item-text">${texto}</div>
+                    <div class="batch-item-title">✅ Imagem encontrada</div>
+                    <img src="${imagemUrl}" style="width:100%; max-height:150px; object-fit:contain; border-radius:6px; margin:8px 0; background:#000;" onerror="this.style.display='none'">
+                    <div class="batch-item-text">${link}</div>
                     <div class="batch-item-actions">
                         <button class="btn-copy" onclick="copiarTextoItem(\`${textoComLinkOfuscado.replace(/`/g, '\\`')}\`)">Copiar 📋</button>
-                        <button class="btn-whatsapp" onclick="enviarWhatsItem(\`${textoComLinkOfuscado.replace(/`/g, '\\`')}\`)">WhatsApp</button>
+                        <button class="btn-download-img" onclick="window.open('${imagemUrl}', '_blank')">Abrir Imagem 🖼️</button>
                     </div>
                 `;
                 sucessos++;
@@ -682,10 +739,6 @@
 
     function copiarTextoItem(texto) {
         navigator.clipboard.writeText(texto).then(() => mostrarToast('Copiado! ✅'));
-    }
-
-    function enviarWhatsItem(texto) {
-        window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(texto)}`, '_blank');
     }
 
     document.addEventListener('keydown', (e) => {
