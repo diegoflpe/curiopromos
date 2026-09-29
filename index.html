@@ -120,6 +120,20 @@
         @keyframes spin { to { transform: rotate(360deg); } }
 
         .helper-text { font-size: 0.75rem; color: var(--text-secondary); margin-top: 4px; }
+
+        /* Badge de loja detectada */
+        .store-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            margin-left: 8px;
+            vertical-align: middle;
+        }
+        .store-badge.ml { background: #ffe600; color: #000; }
+        .store-badge.shopee { background: #ee4d2d; color: #fff; }
+        .store-badge.unknown { background: #555; color: #fff; }
     </style>
 </head>
 <body>
@@ -136,9 +150,9 @@
     <!-- ===== MODO OFERTA ÚNICA ===== -->
     <div id="tabUnico">
         <div class="input-group">
-            <label>🔗 Link de Afiliado</label>
+            <label>🔗 Link de Afiliado <span id="storeBadge" class="store-badge unknown" style="display:none;"></span></label>
             <div class="input-with-btn">
-                <input type="url" id="link" placeholder="https://mercadolivre.com/sec/...">
+                <input type="url" id="link" placeholder="https://mercadolivre.com/sec/... ou https://shopee.com.br/..." oninput="detectarLoja()">
                 <button class="btn-paste" onclick="colarLink()" title="Colar da área de transferência">📋</button>
                 <button class="btn-paste" onclick="buscarDadosLink()" title="Buscar dados do produto">🔍</button>
             </div>
@@ -169,7 +183,7 @@
                 <input type="number" id="precoAtual" placeholder="299.00" step="0.01">
             </div>
             <div class="input-group">
-                <label>Preço Antigo (R$)</label>
+                <label>Preço Antigo (R$) — fica riscado</label>
                 <input type="number" id="precoAntigo" placeholder="499.00" step="0.01">
             </div>
         </div>
@@ -207,7 +221,7 @@
     <div id="tabLote" class="batch-area">
         <div class="input-group">
             <label>🔗 Links de Afiliado (um por linha)</label>
-            <textarea id="linksLote" rows="6" placeholder="https://mercadolivre.com/sec/abc123&#10;https://mercadolivre.com/sec/def456&#10;https://mercadolivre.com/sec/ghi789"></textarea>
+            <textarea id="linksLote" rows="6" placeholder="https://mercadolivre.com/sec/abc123&#10;https://shopee.com.br/..."></textarea>
             <div class="helper-text">Cole vários links (um por linha). O sistema tentará buscar título e preço automaticamente.</div>
         </div>
 
@@ -245,7 +259,7 @@
         <div class="card-new-price" id="cardNewPrice"></div>
     </div>
     <div class="card-coupon" id="cardCoupon" style="display:none;"></div>
-    <div class="card-cta">👉 LINK NA DESCRIÇÃO / COMENTÁRIO</div>
+    <div class="card-cta" id="cardCta">👉 LINK NA DESCRIÇÃO / COMENTÁRIO</div>
     <div class="card-footer">Oferta sujeita a alteração de preço</div>
 </div>
 
@@ -275,13 +289,50 @@
         document.getElementById('tabLote').style.display = tab === 'lote' ? 'block' : 'none';
     }
 
+    // ========== NOVO: DETECTAR LOJA PELO LINK ==========
+    function detectarLoja(link = null) {
+        const url = (link || document.getElementById('link').value || '').toLowerCase().trim();
+        const badge = document.getElementById('storeBadge');
+
+        let loja = 'unknown';
+
+        if (!url) {
+            badge.style.display = 'none';
+            return 'unknown';
+        }
+
+        // Shopee: shopee.com.br, shope.ee, s.shopee.com.br
+        if (url.includes('shopee.com.br') || url.includes('shope.ee') || url.includes('shopee.com')) {
+            loja = 'shopee';
+        }
+        // Mercado Livre: mercadolivre, mercadolibre, ml.com, mercl, sec/
+        else if (url.includes('mercadolivre') || url.includes('mercadolibre') || url.includes('ml.com') || url.includes('mercl')) {
+            loja = 'ml';
+        }
+
+        // Atualiza badge visual
+        if (loja === 'shopee') {
+            badge.textContent = '🛒 Shopee';
+            badge.className = 'store-badge shopee';
+            badge.style.display = 'inline-block';
+        } else if (loja === 'ml') {
+            badge.textContent = '🛍️ Mercado Livre';
+            badge.className = 'store-badge ml';
+            badge.style.display = 'inline-block';
+        } else {
+            badge.style.display = 'none';
+        }
+
+        return loja;
+    }
+
     // ========== ITEM 1: COLAR LINK ==========
     async function colarLink() {
         try {
             const texto = await navigator.clipboard.readText();
             document.getElementById('link').value = texto;
+            detectarLoja(); // Atualiza o badge
             mostrarToast('Link colado! ✅');
-            // Tenta buscar automaticamente
             buscarDadosLink();
         } catch (err) {
             mostrarToast('Permissão negada. Cole manualmente (Ctrl+V).', true);
@@ -306,43 +357,38 @@
         if (btnBuscar) { btnBuscar.innerHTML = '<span class="loading"></span>'; btnBuscar.disabled = true; }
 
         try {
-            // Usa proxy CORS para contornar bloqueio do ML
             const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(link)}`;
             const response = await fetch(proxyUrl);
             const html = await response.text();
 
-            // Parse do HTML
             const parser = new DOMParser();
             const doc = parser.parseFromString(html, 'text/html');
 
-            // Tenta pegar o título (meta og:title ou title)
             let titulo = '';
             const ogTitle = doc.querySelector('meta[property="og:title"]');
             if (ogTitle) titulo = ogTitle.getAttribute('content');
 
-            // Fallback: título da página
             if (!titulo) {
                 const titleTag = doc.querySelector('title');
                 if (titleTag) titulo = titleTag.textContent;
             }
 
-            // Limpa o título (remove sufixos do ML)
             if (titulo) {
                 titulo = titulo
                     .replace(/\s*\|\s*Mercado Livre.*$/i, '')
                     .replace(/\s*-\s*Mercado Livre.*$/i, '')
                     .replace(/^Mercado Livre\s*[-|]\s*/i, '')
+                    .replace(/\s*\|\s*Shopee.*$/i, '')
+                    .replace(/\s*-\s*Shopee.*$/i, '')
                     .trim();
                 document.getElementById('titulo').value = titulo;
             }
 
-            // Tenta pegar preço (meta og:price ou JSON-LD)
             let preco = null;
             const ogPrice = doc.querySelector('meta[property="product:price:amount"]');
             if (ogPrice) preco = parseFloat(ogPrice.getAttribute('content'));
 
             if (!preco) {
-                // Tenta pegar do JSON-LD
                 const scripts = doc.querySelectorAll('script[type="application/ld+json"]');
                 for (const s of scripts) {
                     try {
@@ -387,6 +433,9 @@
             return;
         }
 
+        // Detecta a loja
+        const loja = detectarLoja(link);
+
         // Calcula % OFF
         let desconto = '';
         if (!isNaN(precoAntigo) && precoAntigo > 0 && precoAntigo > precoAtual) {
@@ -397,21 +446,40 @@
         textoGerado = "";
         if (comentario) textoGerado += `${comentario}\n\n`;
         textoGerado += `🐦 ${titulo}\n\n`;
-        if (!isNaN(precoAntigo) && precoAntigo > 0) textoGerado += `❌ De: ${formatarMoeda(precoAntigo)}\n`;
+
+        // 🔥 NOVO: Preço antigo TACHADO usando caracteres Unicode
+        // O WhatsApp NÃO suporta ~~tachado~~ (isso é do Markdown do Telegram/Discord)
+        // Mas suporta o caractere Unicode "COMBINING LONG STROKE OVERLAY" (U+0336)
+        // que coloca um traço sobre cada caractere. Fica visualmente tachado.
+        if (!isNaN(precoAntigo) && precoAntigo > 0) {
+            const precoAntigoFormatado = formatarMoeda(precoAntigo);
+            textoGerado += `❌ De: ${tacharTexto(precoAntigoFormatado)}\n`;
+        }
         textoGerado += `✅ Por: ${formatarMoeda(precoAtual)}${desconto}\n`;
         if (cupom) {
             textoGerado += `🎟️ Cupom: ${cupom}\n`;
             if (!isNaN(precoCupom) && precoCupom > 0) textoGerado += `💥 Preço final com cupom: ${formatarMoeda(precoCupom)}\n`;
         }
-        textoGerado += `\n👉 ${link}`;
 
-        // Salva dados para exportação de imagem
-        dadosAtuais = { comentario, titulo, precoAtual, precoAntigo, cupom, precoCupom, desconto };
+        // 🔥 NOVO: CTA diferente para Shopee vs outras lojas
+        if (loja === 'shopee') {
+            textoGerado += `\n👇 Compre aqui 👇\n${link}`;
+        } else {
+            textoGerado += `\n👉 ${link}`;
+        }
+
+        dadosAtuais = { comentario, titulo, precoAtual, precoAntigo, cupom, precoCupom, desconto, loja, link };
 
         document.getElementById('resultBox').textContent = textoGerado;
         document.getElementById('resultArea').style.display = 'block';
         document.getElementById('resultArea').scrollIntoView({ behavior: 'smooth' });
         mostrarToast('Anúncio gerado! 🎉');
+    }
+
+    // 🔥 NOVO: Função que "tacha" texto usando Unicode
+    // Coloca o caractere U+0336 (COMBINING LONG STROKE OVERLAY) depois de cada caractere
+    function tacharTexto(texto) {
+        return texto.split('').map(char => char + '\u0336').join('');
     }
 
     // ========== LIMPAR ==========
@@ -422,6 +490,7 @@
         textoGerado = "";
         document.getElementById('resultBox').textContent = '';
         document.getElementById('resultArea').style.display = 'none';
+        document.getElementById('storeBadge').style.display = 'none';
         document.getElementById('link').focus();
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
@@ -452,14 +521,13 @@
         setTimeout(() => limparTudo(), 500);
     }
 
-    // ========== ITEM 11 + 13: EXPORTAR COMO IMAGEM ==========
+    // ========== EXPORTAR COMO IMAGEM ==========
     async function exportarImagem() {
         if (!textoGerado) { mostrarToast('Gere o anúncio primeiro!', true); return; }
 
         const card = document.getElementById('cardPreview');
         const d = dadosAtuais;
 
-        // Preenche o card
         document.getElementById('cardComment').textContent = d.comentario || '';
         document.getElementById('cardComment').style.display = d.comentario ? 'block' : 'none';
         document.getElementById('cardTitle').textContent = `🐦 ${d.titulo}`;
@@ -480,7 +548,14 @@
             document.getElementById('cardCoupon').style.display = 'none';
         }
 
-        // Espera um tick para renderizar
+        // 🔥 NOVO: CTA do card muda conforme a loja
+        const cardCta = document.getElementById('cardCta');
+        if (d.loja === 'shopee') {
+            cardCta.textContent = '👇 COMPRE AQUI 👇';
+        } else {
+            cardCta.textContent = '👉 LINK NA DESCRIÇÃO / COMENTÁRIO';
+        }
+
         await new Promise(r => setTimeout(r, 100));
 
         try {
@@ -491,7 +566,6 @@
                 logging: false
             });
 
-            // Download
             canvas.toBlob(blob => {
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
@@ -507,7 +581,7 @@
         }
     }
 
-    // ========== ITEM 16: MÚLTIPLAS OFERTAS EM LOTE ==========
+    // ========== LOTE ==========
     async function processarLote() {
         const linksTexto = document.getElementById('linksLote').value.trim();
         const comentarioPadrao = document.getElementById('comentarioLote').value.trim();
@@ -544,7 +618,6 @@
             list.appendChild(item);
 
             try {
-                // Busca dados do link
                 const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(link)}`;
                 const response = await fetch(proxyUrl);
                 const html = await response.text();
@@ -562,6 +635,8 @@
                     titulo = titulo.replace(/\s*\|\s*Mercado Livre.*$/i, '')
                                    .replace(/\s*-\s*Mercado Livre.*$/i, '')
                                    .replace(/^Mercado Livre\s*[-|]\s*/i, '')
+                                   .replace(/\s*\|\s*Shopee.*$/i, '')
+                                   .replace(/\s*-\s*Shopee.*$/i, '')
                                    .trim();
                 }
 
@@ -582,12 +657,20 @@
 
                 if (!titulo || !preco) throw new Error('Dados incompletos');
 
-                // Monta o texto
+                // Detecta a loja do lote
+                const lojaLote = detectarLoja(link);
+
                 let texto = '';
                 if (comentarioPadrao) texto += `${comentarioPadrao}\n\n`;
                 texto += `🐦 ${titulo}\n\n`;
                 texto += `✅ Por: ${formatarMoeda(preco)}\n`;
-                texto += `\n👉 ${link}`;
+
+                // CTA conforme loja
+                if (lojaLote === 'shopee') {
+                    texto += `\n👇 Compre aqui 👇\n${link}`;
+                } else {
+                    texto += `\n👉 ${link}`;
+                }
 
                 item.className = 'batch-item';
                 item.innerHTML = `
@@ -610,7 +693,6 @@
             processados++;
             fill.style.width = `${(processados / links.length) * 100}%`;
 
-            // Pequeno delay para não sobrecarregar o proxy
             await new Promise(r => setTimeout(r, 800));
         }
 
