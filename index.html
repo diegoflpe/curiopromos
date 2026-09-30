@@ -18,6 +18,7 @@
             --accent-purple: #bb86fc;
             --accent-orange: #ff9800;
             --accent-red: #ff5252;
+            --accent-pix: #32bcad;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
@@ -67,6 +68,102 @@
         .template-btn { padding: 6px 10px; background: var(--input-bg); border: 1px solid #444; border-radius: 20px; color: var(--text-secondary); font-size: 0.75rem; cursor: pointer; transition: all 0.2s; width: auto; margin: 0; }
         .template-btn:hover { background: var(--accent-green); color: #000; border-color: var(--accent-green); }
 
+        /* 🔥 NOVO: Botão Pix */
+        .pix-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: -5px;
+            margin-bottom: 15px;
+            padding: 10px 12px;
+            background: var(--input-bg);
+            border-radius: 8px;
+            border: 1px solid #333;
+        }
+        .pix-toggle {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            user-select: none;
+            width: 100%;
+            margin: 0;
+            padding: 0;
+            background: transparent;
+            border: none;
+            color: var(--text-primary);
+            font-size: 0.9rem;
+            font-weight: 600;
+            justify-content: flex-start;
+            transition: none;
+            transform: none;
+        }
+        .pix-toggle:active { transform: none; }
+        .pix-toggle:hover { opacity: 1; }
+        .pix-toggle input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            accent-color: var(--accent-pix);
+            cursor: pointer;
+            margin: 0;
+            padding: 0;
+            flex-shrink: 0;
+        }
+        .pix-toggle .pix-label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+        .pix-toggle .pix-label.active { color: var(--accent-pix); }
+        .pix-icon { font-size: 1.1rem; }
+
+        /* 🔥 NOVO: Campo de anotações */
+        .notes-area {
+            margin-top: 25px;
+            border-top: 1px dashed #444;
+            padding-top: 20px;
+        }
+        .notes-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        .notes-title {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .notes-clear {
+            background: transparent;
+            border: 1px solid #444;
+            color: var(--text-secondary);
+            font-size: 0.75rem;
+            padding: 4px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            width: auto;
+            margin: 0;
+            transition: all 0.2s;
+        }
+        .notes-clear:hover {
+            background: var(--accent-red);
+            color: #fff;
+            border-color: var(--accent-red);
+            opacity: 1;
+        }
+        #notas {
+            min-height: 150px;
+            resize: vertical;
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
         /* Card para exportar como imagem */
         .export-card { display: none; }
 
@@ -89,6 +186,17 @@
         #cardPreview .card-prices { margin-bottom: 20px; }
         #cardPreview .card-old-price { font-size: 1rem; color: #888; text-decoration: line-through; }
         #cardPreview .card-new-price { font-size: 2.2rem; font-weight: bold; color: var(--accent-green); }
+        #cardPreview .card-pix-badge {
+            display: inline-block;
+            background: var(--accent-pix);
+            color: #000;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            margin-left: 10px;
+            vertical-align: middle;
+        }
         #cardPreview .card-coupon { background: var(--accent-orange); color: #000; padding: 8px 14px; border-radius: 8px; font-weight: bold; display: inline-block; margin-bottom: 15px; font-size: 0.95rem; }
         #cardPreview .card-cta { background: var(--accent-green); color: #000; padding: 12px; border-radius: 10px; text-align: center; font-weight: bold; font-size: 1.1rem; margin-top: 15px; }
         #cardPreview .card-footer { text-align: center; font-size: 0.8rem; color: #666; margin-top: 15px; }
@@ -139,7 +247,7 @@
 <body>
 
 <div class="container">
-    <h1>Gerador de Ofertas ML Pro</h1>
+    <h1>Gerador de Ofertas Curió Promos</h1>
     <p class="subtitle">Ferramenta profissional para afiliados</p>
 
     <div class="tabs">
@@ -188,6 +296,17 @@
             </div>
         </div>
 
+        <!-- 🔥 NOVO: Toggle Pix -->
+        <div class="pix-row">
+            <label class="pix-toggle">
+                <input type="checkbox" id="pixCheckbox" onchange="togglePix()">
+                <span class="pix-label" id="pixLabel">
+                    <span class="pix-icon">💠</span>
+                    <span>Preço no Pix</span>
+                </span>
+            </label>
+        </div>
+
         <div class="row">
             <div class="input-group">
                 <label>Cupom (Opcional)</label>
@@ -214,6 +333,16 @@
                 <button class="btn-image" onclick="exportarImagem()">Imagem 🖼️</button>
                 <button class="btn-new" onclick="limparTudo()">Novo 🔄</button>
             </div>
+        </div>
+
+        <!-- 🔥 NOVO: Campo de anotações -->
+        <div class="notes-area">
+            <div class="notes-header">
+                <div class="notes-title">📝 Bloco de Anotações (não afeta o anúncio)</div>
+                <button class="notes-clear" onclick="limparNotas()">Limpar</button>
+            </div>
+            <textarea id="notas" placeholder="Cole aqui textos, links, referências... este campo não é usado no anúncio, é só para você guardar informações temporárias."></textarea>
+            <div class="helper-text">💡 Campo livre — use para copiar códigos, cupons, links antigos ou qualquer coisa que precise ter à mão.</div>
         </div>
     </div>
 
@@ -289,7 +418,19 @@
         document.getElementById('tabLote').style.display = tab === 'lote' ? 'block' : 'none';
     }
 
-    // ========== NOVO: DETECTAR LOJA PELO LINK ==========
+    // ========== 🔥 NOVO: TOGGLE PIX ==========
+    function togglePix() {
+        const checkbox = document.getElementById('pixCheckbox');
+        const label = document.getElementById('pixLabel');
+        if (checkbox.checked) {
+            label.classList.add('active');
+            mostrarToast('💠 Preço no Pix ativado!');
+        } else {
+            label.classList.remove('active');
+        }
+    }
+
+    // ========== DETECTAR LOJA ==========
     function detectarLoja(link = null) {
         const url = (link || document.getElementById('link').value || '').toLowerCase().trim();
         const badge = document.getElementById('storeBadge');
@@ -301,16 +442,13 @@
             return 'unknown';
         }
 
-        // Shopee: shopee.com.br, shope.ee, s.shopee.com.br
         if (url.includes('shopee.com.br') || url.includes('shope.ee') || url.includes('shopee.com')) {
             loja = 'shopee';
         }
-        // Mercado Livre: mercadolivre, mercadolibre, ml.com, mercl, sec/
         else if (url.includes('mercadolivre') || url.includes('mercadolibre') || url.includes('ml.com') || url.includes('mercl')) {
             loja = 'ml';
         }
 
-        // Atualiza badge visual
         if (loja === 'shopee') {
             badge.textContent = '🛒 Shopee';
             badge.className = 'store-badge shopee';
@@ -326,12 +464,12 @@
         return loja;
     }
 
-    // ========== ITEM 1: COLAR LINK ==========
+    // ========== COLAR LINK ==========
     async function colarLink() {
         try {
             const texto = await navigator.clipboard.readText();
             document.getElementById('link').value = texto;
-            detectarLoja(); // Atualiza o badge
+            detectarLoja();
             mostrarToast('Link colado! ✅');
             buscarDadosLink();
         } catch (err) {
@@ -339,13 +477,13 @@
         }
     }
 
-    // ========== ITEM 3: TEMPLATES DE COMENTÁRIO ==========
+    // ========== TEMPLATES ==========
     function usarTemplate(texto) {
         document.getElementById('comentario').value = texto;
         mostrarToast('Template aplicado! ✅');
     }
 
-    // ========== ITEM 6: DETECÇÃO AUTOMÁTICA DO TÍTULO ==========
+    // ========== BUSCAR DADOS ==========
     async function buscarDadosLink() {
         const link = document.getElementById('link').value.trim();
         if (!link) {
@@ -427,13 +565,13 @@
         const cupom = document.getElementById('cupom').value.trim().toUpperCase();
         const precoCupom = parseFloat(document.getElementById('precoCupom').value);
         const comentario = document.getElementById('comentario').value.trim();
+        const isPix = document.getElementById('pixCheckbox').checked; // 🔥 NOVO
 
         if (!link || !titulo || isNaN(precoAtual)) {
             mostrarToast('Preencha Link, Título e Preço Atual.', true);
             return;
         }
 
-        // Detecta a loja
         const loja = detectarLoja(link);
 
         // Calcula % OFF
@@ -443,32 +581,30 @@
             desconto = ` (${pct}% OFF 🔥)`;
         }
 
+        // 🔥 NOVO: Sufixo Pix
+        const pixSuffix = isPix ? ' no Pix 💠' : '';
+
         textoGerado = "";
         if (comentario) textoGerado += `${comentario}\n\n`;
         textoGerado += `🐦 ${titulo}\n\n`;
 
-        // 🔥 NOVO: Preço antigo TACHADO usando caracteres Unicode
-        // O WhatsApp NÃO suporta ~~tachado~~ (isso é do Markdown do Telegram/Discord)
-        // Mas suporta o caractere Unicode "COMBINING LONG STROKE OVERLAY" (U+0336)
-        // que coloca um traço sobre cada caractere. Fica visualmente tachado.
         if (!isNaN(precoAntigo) && precoAntigo > 0) {
             const precoAntigoFormatado = formatarMoeda(precoAntigo);
             textoGerado += `❌ De: ${tacharTexto(precoAntigoFormatado)}\n`;
         }
-        textoGerado += `✅ Por: ${formatarMoeda(precoAtual)}${desconto}\n`;
+        textoGerado += `✅ Por: ${formatarMoeda(precoAtual)}${pixSuffix}${desconto}\n`;
         if (cupom) {
             textoGerado += `🎟️ Cupom: ${cupom}\n`;
             if (!isNaN(precoCupom) && precoCupom > 0) textoGerado += `💥 Preço final com cupom: ${formatarMoeda(precoCupom)}\n`;
         }
 
-        // 🔥 NOVO: CTA diferente para Shopee vs outras lojas
         if (loja === 'shopee') {
             textoGerado += `\nCompre aqui 👇\n${link}`;
         } else {
             textoGerado += `\n👉 ${link}`;
         }
 
-        dadosAtuais = { comentario, titulo, precoAtual, precoAntigo, cupom, precoCupom, desconto, loja, link };
+        dadosAtuais = { comentario, titulo, precoAtual, precoAntigo, cupom, precoCupom, desconto, loja, link, isPix };
 
         document.getElementById('resultBox').textContent = textoGerado;
         document.getElementById('resultArea').style.display = 'block';
@@ -476,8 +612,7 @@
         mostrarToast('Anúncio gerado! 🎉');
     }
 
-    // 🔥 NOVO: Função que "tacha" texto usando Unicode
-    // Coloca o caractere U+0336 (COMBINING LONG STROKE OVERLAY) depois de cada caractere
+    // ========== TACHAR TEXTO ==========
     function tacharTexto(texto) {
         return texto.split('').map(char => char + '\u0336').join('');
     }
@@ -487,12 +622,23 @@
         ['link','titulo','comentario','precoAtual','precoAntigo','cupom','precoCupom'].forEach(id => {
             document.getElementById(id).value = '';
         });
+        document.getElementById('pixCheckbox').checked = false;
+        document.getElementById('pixLabel').classList.remove('active');
         textoGerado = "";
         document.getElementById('resultBox').textContent = '';
         document.getElementById('resultArea').style.display = 'none';
         document.getElementById('storeBadge').style.display = 'none';
         document.getElementById('link').focus();
         window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // ========== 🔥 NOVO: LIMPAR NOTAS ==========
+    function limparNotas() {
+        if (!document.getElementById('notas').value.trim()) return;
+        if (confirm('Tem certeza que quer apagar o bloco de anotações?')) {
+            document.getElementById('notas').value = '';
+            mostrarToast('Anotações limpas! 🗑️');
+        }
     }
 
     // ========== COPIAR ==========
@@ -539,7 +685,9 @@
             document.getElementById('cardOldPrice').style.display = 'none';
         }
 
-        document.getElementById('cardNewPrice').textContent = `Por: ${formatarMoeda(d.precoAtual)}${d.desconto}`;
+        // 🔥 NOVO: Preço com badge Pix no card
+        const pixBadge = d.isPix ? ' <span class="card-pix-badge">💠 no Pix</span>' : '';
+        document.getElementById('cardNewPrice').innerHTML = `Por: ${formatarMoeda(d.precoAtual)}${d.desconto}${pixBadge}`;
 
         if (d.cupom) {
             document.getElementById('cardCoupon').textContent = `🎟️ CUPOM: ${d.cupom}`;
@@ -548,7 +696,6 @@
             document.getElementById('cardCoupon').style.display = 'none';
         }
 
-        // 🔥 NOVO: CTA do card muda conforme a loja
         const cardCta = document.getElementById('cardCta');
         if (d.loja === 'shopee') {
             cardCta.textContent = '👇 COMPRE AQUI 👇';
@@ -657,7 +804,6 @@
 
                 if (!titulo || !preco) throw new Error('Dados incompletos');
 
-                // Detecta a loja do lote
                 const lojaLote = detectarLoja(link);
 
                 let texto = '';
@@ -665,7 +811,6 @@
                 texto += `🐦 ${titulo}\n\n`;
                 texto += `✅ Por: ${formatarMoeda(preco)}\n`;
 
-                // CTA conforme loja
                 if (lojaLote === 'shopee') {
                     texto += `\n👇 Compre aqui 👇\n${link}`;
                 } else {
