@@ -53,7 +53,6 @@
         .btn-generate { background-color: var(--accent-green); color: #000; }
         .btn-copy { background-color: var(--input-bg); color: var(--text-primary); border: 1px solid #444; flex: 1; }
         .btn-whatsapp { background-color: var(--accent-whatsapp); color: #fff; flex: 2; }
-        .btn-whatsapp-img { background: linear-gradient(135deg, #25D366, #128C7E); color: #fff; flex: 2; }
         .btn-new { background-color: var(--accent-blue); color: #fff; flex: 1; }
         .btn-image { background-color: var(--accent-purple); color: #fff; flex: 1; }
         .btn-paste { background-color: var(--accent-orange); color: #000; padding: 12px 15px; margin: 0; width: auto; font-size: 0.9rem; }
@@ -64,53 +63,12 @@
         .result-area { margin-top: 25px; display: none; }
         .result-box { background-color: #000; padding: 15px; border-radius: 8px; border: 1px solid #333; white-space: pre-wrap; font-family: monospace; font-size: 0.95rem; line-height: 1.5; color: #ddd; margin-bottom: 15px;}
 
+        /* Templates de comentário */
         .templates { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
         .template-btn { padding: 6px 10px; background: var(--input-bg); border: 1px solid #444; border-radius: 20px; color: var(--text-secondary); font-size: 0.75rem; cursor: pointer; transition: all 0.2s; width: auto; margin: 0; }
         .template-btn:hover { background: var(--accent-green); color: #000; border-color: var(--accent-green); }
 
-        /* Preview da imagem do produto */
-        .image-preview-area {
-            display: none;
-            margin-bottom: 15px;
-            background: var(--input-bg);
-            border-radius: 12px;
-            padding: 15px;
-            border: 1px solid #333;
-        }
-        .image-preview-area.visible { display: block; }
-        .image-preview-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-            font-size: 0.85rem;
-            color: var(--text-secondary);
-            font-weight: 600;
-        }
-        .image-preview-img {
-            width: 100%;
-            max-height: 250px;
-            object-fit: contain;
-            border-radius: 8px;
-            background: #000;
-            display: block;
-        }
-        .image-actions {
-            display: flex;
-            gap: 8px;
-            margin-top: 10px;
-        }
-        .image-actions button {
-            flex: 1;
-            margin: 0;
-            padding: 10px;
-            font-size: 0.85rem;
-        }
-        .btn-copy-img { background: var(--accent-purple); color: #fff; }
-        .btn-download-img { background: var(--accent-blue); color: #fff; }
-        .btn-close-img { background: var(--input-bg); color: var(--text-primary); border: 1px solid #444; }
-
-        /* Botão Pix */
+        /* 🔥 NOVO: Botão Pix */
         .pix-row {
             display: flex;
             align-items: center;
@@ -161,7 +119,7 @@
         .pix-toggle .pix-label.active { color: var(--accent-pix); }
         .pix-icon { font-size: 1.1rem; }
 
-        /* Bloco de anotações */
+        /* 🔥 NOVO: Campo de anotações */
         .notes-area {
             margin-top: 25px;
             border-top: 1px dashed #444;
@@ -207,6 +165,8 @@
         }
 
         /* Card para exportar como imagem */
+        .export-card { display: none; }
+
         #cardPreview {
             position: fixed;
             left: -9999px;
@@ -265,10 +225,11 @@
         .toast.error { background: var(--accent-red); color: #fff; }
 
         .loading { display: inline-block; width: 14px; height: 14px; border: 2px solid rgba(0,0,0,0.3); border-top-color: #000; border-radius: 50%; animation: spin 0.8s linear infinite; }
-        @keyframes spin { transform: rotate(360deg); }
+        @keyframes spin { to { transform: rotate(360deg); } }
 
         .helper-text { font-size: 0.75rem; color: var(--text-secondary); margin-top: 4px; }
 
+        /* Badge de loja detectada */
         .store-badge {
             display: inline-block;
             padding: 4px 10px;
@@ -281,65 +242,6 @@
         .store-badge.ml { background: #ffe600; color: #000; }
         .store-badge.shopee { background: #ee4d2d; color: #fff; }
         .store-badge.unknown { background: #555; color: #fff; }
-
-        /* Modal de instruções */
-        .modal-overlay {
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.85);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 10000;
-            padding: 20px;
-        }
-        .modal-overlay.show { display: flex; }
-        .modal-box {
-            background: var(--card-bg);
-            border-radius: 16px;
-            padding: 25px;
-            max-width: 500px;
-            width: 100%;
-            border: 1px solid #444;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.6);
-        }
-        .modal-title {
-            font-size: 1.2rem;
-            font-weight: bold;
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .modal-step {
-            background: var(--input-bg);
-            padding: 12px 15px;
-            border-radius: 10px;
-            margin-bottom: 10px;
-            border-left: 3px solid var(--accent-whatsapp);
-        }
-        .modal-step-title {
-            font-weight: bold;
-            font-size: 0.9rem;
-            margin-bottom: 4px;
-            color: var(--accent-whatsapp);
-        }
-        .modal-step-text {
-            font-size: 0.85rem;
-            color: var(--text-secondary);
-            line-height: 1.4;
-        }
-        .modal-actions {
-            display: flex;
-            gap: 10px;
-            margin-top: 20px;
-        }
-        .modal-actions button {
-            flex: 1;
-            margin: 0;
-        }
-        .btn-cancel { background: var(--input-bg); color: var(--text-primary); border: 1px solid #444; }
-        .btn-confirm { background: var(--accent-whatsapp); color: #fff; }
     </style>
 </head>
 <body>
@@ -360,22 +262,9 @@
             <div class="input-with-btn">
                 <input type="url" id="link" placeholder="https://mercadolivre.com/sec/... ou https://shopee.com.br/..." oninput="detectarLoja()">
                 <button class="btn-paste" onclick="colarLink()" title="Colar da área de transferência">📋</button>
-                <button class="btn-paste" onclick="buscarImagem()" title="Buscar imagem do produto">🖼️</button>
+                <button class="btn-paste" onclick="buscarDadosLink()" title="Buscar dados do produto">🔍</button>
             </div>
-            <div class="helper-text">Dica: o botão 🖼️ busca a imagem do produto automaticamente.</div>
-        </div>
-
-        <!-- Preview da imagem do produto -->
-        <div class="image-preview-area" id="imagePreviewArea">
-            <div class="image-preview-header">
-                <span>🖼️ Imagem do Produto</span>
-            </div>
-            <img id="imagePreviewImg" class="image-preview-img" src="" alt="Imagem do produto">
-            <div class="image-actions">
-                <button class="btn-copy-img" onclick="copiarImagem()">Copiar Imagem 📋</button>
-                <button class="btn-download-img" onclick="baixarImagem()">Baixar 💾</button>
-                <button class="btn-close-img" onclick="fecharImagem()">Fechar ✖</button>
-            </div>
+            <div class="helper-text">Dica: o botão 🔍 tenta puxar o título automaticamente.</div>
         </div>
 
         <div class="input-group">
@@ -407,6 +296,7 @@
             </div>
         </div>
 
+        <!-- 🔥 NOVO: Toggle Pix -->
         <div class="pix-row">
             <label class="pix-toggle">
                 <input type="checkbox" id="pixCheckbox" onchange="togglePix()">
@@ -440,14 +330,12 @@
                     WhatsApp
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12.031 2C6.505 2 2 6.478 2 11.979c0 1.76.458 3.454 1.32 4.955L2 22l5.226-1.357a9.93 9.93 0 004.805 1.236h.004c5.523 0 10.027-4.478 10.027-9.979C22.062 6.478 17.558 2 12.031 2zm5.835 14.195c-.244.686-1.42 1.32-1.96 1.378-.54.058-1.054.267-3.556-.84-2.502-1.107-4.058-3.686-4.182-3.855-.124-.17-.99-1.32-.99-2.518 0-1.198.63-1.788.85-2.032.222-.244.48-.305.642-.305.16 0 .32.003.46.01.144.006.338-.055.527.402.19.456.65 1.59.708 1.708.058.118.096.256.018.41-.08.156-.156.252-.31.43-.15.18-.32.4-.458.528-.15.14-.3.294-.13.59.17.29.75 1.24 1.61 2.007.11.098.21.18.317.257.96.698 1.328.79 1.57.884.244.094.386.084.53-.056.14-.14.618-.72.783-.966.164-.244.328-.204.55-.12.224.084 1.41.666 1.65.786.24.12.4.18.46.28.06.1.06.586-.184 1.272z"/></svg>
                 </button>
-                <button class="btn-whatsapp-img" onclick="enviarWhatsAppComImagem()" title="Envia imagem + texto sem preview feio">
-                    📤 Imagem + Texto
-                </button>
                 <button class="btn-image" onclick="exportarImagem()">Imagem 🖼️</button>
                 <button class="btn-new" onclick="limparTudo()">Novo 🔄</button>
             </div>
         </div>
 
+        <!-- 🔥 NOVO: Campo de anotações -->
         <div class="notes-area">
             <div class="notes-header">
                 <div class="notes-title">📝 Bloco de Anotações (não afeta o anúncio)</div>
@@ -504,56 +392,19 @@
     <div class="card-footer">Oferta sujeita a alteração de preço</div>
 </div>
 
-<!-- Modal de instruções -->
-<div class="modal-overlay" id="modalInstrucoes">
-    <div class="modal-box">
-        <div class="modal-title">📤 Enviar Imagem + Texto no WhatsApp</div>
-        <p style="font-size:0.85rem; color:var(--text-secondary); margin-bottom:15px;">
-            Siga os passos abaixo para enviar o anúncio <strong>com imagem</strong> e <strong>sem o preview feio do link</strong>:
-        </p>
-
-        <div class="modal-step">
-            <div class="modal-step-title">1️⃣ Imagem copiada automaticamente</div>
-            <div class="modal-step-text">A imagem do produto já está na sua área de transferência.</div>
-        </div>
-
-        <div class="modal-step">
-            <div class="modal-step-title">2️⃣ Cole a imagem no WhatsApp</div>
-            <div class="modal-step-text">Dentro da conversa, aperte <strong>Ctrl+V</strong> para colar a imagem.</div>
-        </div>
-
-        <div class="modal-step">
-            <div class="modal-step-title">3️⃣ Cole o texto</div>
-            <div class="modal-step-text">Aperte <strong>Ctrl+V</strong> de novo para colar o texto (que já copiei).</div>
-        </div>
-
-        <div class="modal-step">
-            <div class="modal-step-title">4️⃣ Envie!</div>
-            <div class="modal-step-text">A imagem vai grande e o link fica clicável <strong>sem o card de preview</strong>.</div>
-        </div>
-
-        <div class="modal-actions">
-            <button class="btn-cancel" onclick="fecharModal()">Cancelar</button>
-            <button class="btn-confirm" onclick="abrirWhatsApp()">Abrir WhatsApp 🚀</button>
-        </div>
-    </div>
-</div>
-
 <!-- Toast -->
 <div class="toast" id="toast"></div>
 
 <script>
     let textoGerado = "";
     let dadosAtuais = {};
-    let imagemAtualUrl = "";
-    let imagemBlob = null;
 
     // ========== UTILITÁRIOS ==========
     function mostrarToast(msg, isError = false) {
         const toast = document.getElementById('toast');
         toast.textContent = msg;
         toast.className = 'toast show' + (isError ? ' error' : '');
-        setTimeout(() => { toast.className = 'toast' + (isError ? ' error' : ''); }, 3000);
+        setTimeout(() => { toast.className = 'toast' + (isError ? ' error' : ''); }, 2500);
     }
 
     function formatarMoeda(valor) {
@@ -567,6 +418,7 @@
         document.getElementById('tabLote').style.display = tab === 'lote' ? 'block' : 'none';
     }
 
+    // ========== 🔥 NOVO: TOGGLE PIX ==========
     function togglePix() {
         const checkbox = document.getElementById('pixCheckbox');
         const label = document.getElementById('pixLabel');
@@ -619,7 +471,7 @@
             document.getElementById('link').value = texto;
             detectarLoja();
             mostrarToast('Link colado! ✅');
-            buscarImagem();
+            buscarDadosLink();
         } catch (err) {
             mostrarToast('Permissão negada. Cole manualmente (Ctrl+V).', true);
         }
@@ -631,158 +483,77 @@
         mostrarToast('Template aplicado! ✅');
     }
 
-    // ========== BUSCAR IMAGEM ==========
-    const PROXIES = [
-        (url) => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
-        (url) => `https://corsproxy.io/?${encodeURIComponent(url)}`,
-        (url) => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
-    ];
-
-    async function fetchComProxy(url) {
-        let ultimoErro = null;
-        for (let i = 0; i < PROXIES.length; i++) {
-            try {
-                const proxyUrl = PROXIES[i](url);
-                const response = await fetch(proxyUrl);
-                if (!response.ok) throw new Error(`HTTP ${response.status}`);
-                const html = await response.text();
-                if (html && html.length > 500) return html;
-                throw new Error('Resposta vazia');
-            } catch (err) {
-                ultimoErro = err;
-            }
-        }
-        throw ultimoErro || new Error('Todos os proxies falharam');
-    }
-
-    function extrairImagemDoHTML(html) {
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(html, 'text/html');
-
-        let imagem = '';
-        const ogImage = doc.querySelector('meta[property="og:image"]');
-        if (ogImage) imagem = ogImage.getAttribute('content') || '';
-
-        if (!imagem) {
-            const twImage = doc.querySelector('meta[name="twitter:image"]');
-            if (twImage) imagem = twImage.getAttribute('content') || '';
-        }
-
-        if (!imagem) {
-            const scripts = doc.querySelectorAll('script[type="application/ld+json"]');
-            for (const s of scripts) {
-                try {
-                    const json = JSON.parse(s.textContent);
-                    if (json.image) {
-                        if (typeof json.image === 'string') { imagem = json.image; break; }
-                        if (Array.isArray(json.image) && json.image[0]) { imagem = json.image[0]; break; }
-                    }
-                } catch (e) {}
-            }
-        }
-
-        return imagem;
-    }
-
-    async function buscarImagem() {
+    // ========== BUSCAR DADOS ==========
+    async function buscarDadosLink() {
         const link = document.getElementById('link').value.trim();
         if (!link) {
             mostrarToast('Cole um link primeiro.', true);
             return;
         }
 
-        const btn = event?.target;
-        if (btn) { btn.innerHTML = '<span class="loading"></span>'; btn.disabled = true; }
+        const btnBuscar = event?.target;
+        if (btnBuscar) { btnBuscar.innerHTML = '<span class="loading"></span>'; btnBuscar.disabled = true; }
 
         try {
-            const html = await fetchComProxy(link);
-            const imagemUrl = extrairImagemDoHTML(html);
-
-            if (!imagemUrl) {
-                mostrarToast('Não encontrei imagem nesse link.', true);
-                return;
-            }
-
-            imagemAtualUrl = imagemUrl;
-
-            const img = document.getElementById('imagePreviewImg');
-            img.crossOrigin = 'anonymous';
-            img.src = imagemUrl;
-
-            document.getElementById('imagePreviewArea').classList.add('visible');
-            mostrarToast('Imagem encontrada! 🖼️');
-
-            // Pré-carrega o blob pra copiar depois
-            carregarBlobImagem(imagemUrl);
-        } catch (err) {
-            console.error(err);
-            mostrarToast('Erro ao buscar imagem. Tente novamente.', true);
-        } finally {
-            if (btn) { btn.innerHTML = '🖼️'; btn.disabled = false; }
-        }
-    }
-
-    async function carregarBlobImagem(url) {
-        try {
-            const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
+            const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(link)}`;
             const response = await fetch(proxyUrl);
-            imagemBlob = await response.blob();
-        } catch (err) {
-            console.warn('Não consegui pré-carregar blob:', err);
-            imagemBlob = null;
-        }
-    }
+            const html = await response.text();
 
-    // ========== COPIAR IMAGEM ==========
-    async function copiarImagem() {
-        if (!imagemAtualUrl) {
-            mostrarToast('Nenhuma imagem para copiar.', true);
-            return;
-        }
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
 
-        try {
-            mostrarToast('Copiando imagem... ⏳');
+            let titulo = '';
+            const ogTitle = doc.querySelector('meta[property="og:title"]');
+            if (ogTitle) titulo = ogTitle.getAttribute('content');
 
-            let blob = imagemBlob;
-
-            if (!blob) {
-                const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(imagemAtualUrl)}`;
-                const response = await fetch(proxyUrl);
-                blob = await response.blob();
+            if (!titulo) {
+                const titleTag = doc.querySelector('title');
+                if (titleTag) titulo = titleTag.textContent;
             }
 
-            if (!navigator.clipboard || !window.ClipboardItem) {
-                throw new Error('Navegador não suporta cópia de imagem');
+            if (titulo) {
+                titulo = titulo
+                    .replace(/\s*\|\s*Mercado Livre.*$/i, '')
+                    .replace(/\s*-\s*Mercado Livre.*$/i, '')
+                    .replace(/^Mercado Livre\s*[-|]\s*/i, '')
+                    .replace(/\s*\|\s*Shopee.*$/i, '')
+                    .replace(/\s*-\s*Shopee.*$/i, '')
+                    .trim();
+                document.getElementById('titulo').value = titulo;
             }
 
-            const item = new ClipboardItem({ [blob.type]: blob });
-            await navigator.clipboard.write([item]);
+            let preco = null;
+            const ogPrice = doc.querySelector('meta[property="product:price:amount"]');
+            if (ogPrice) preco = parseFloat(ogPrice.getAttribute('content'));
 
-            mostrarToast('Imagem copiada! Cole no WhatsApp 📋');
+            if (!preco) {
+                const scripts = doc.querySelectorAll('script[type="application/ld+json"]');
+                for (const s of scripts) {
+                    try {
+                        const json = JSON.parse(s.textContent);
+                        if (json.offers?.price) { preco = parseFloat(json.offers.price); break; }
+                        if (Array.isArray(json.offers) && json.offers[0]?.price) { preco = parseFloat(json.offers[0].price); break; }
+                    } catch (e) {}
+                }
+            }
+
+            if (preco) {
+                document.getElementById('precoAtual').value = preco.toFixed(2);
+            }
+
+            if (titulo && preco) {
+                mostrarToast('Título e preço detectados! ✅');
+            } else if (titulo) {
+                mostrarToast('Título detectado! Preço preencha manualmente.');
+            } else {
+                mostrarToast('Não consegui detectar. Preencha manualmente.', true);
+            }
         } catch (err) {
             console.error(err);
-            mostrarToast('Não consegui copiar. Use o botão Baixar 💾', true);
+            mostrarToast('Erro ao buscar dados. Preencha manualmente.', true);
+        } finally {
+            if (btnBuscar) { btnBuscar.innerHTML = '🔍'; btnBuscar.disabled = false; }
         }
-    }
-
-    function baixarImagem() {
-        if (!imagemAtualUrl) {
-            mostrarToast('Nenhuma imagem para baixar.', true);
-            return;
-        }
-        const a = document.createElement('a');
-        a.href = imagemAtualUrl;
-        a.download = `produto-${Date.now()}.jpg`;
-        a.target = '_blank';
-        a.click();
-        mostrarToast('Download iniciado! 💾');
-    }
-
-    function fecharImagem() {
-        document.getElementById('imagePreviewArea').classList.remove('visible');
-        document.getElementById('imagePreviewImg').src = '';
-        imagemAtualUrl = '';
-        imagemBlob = null;
     }
 
     // ========== GERAR ANÚNCIO ==========
@@ -794,7 +565,7 @@
         const cupom = document.getElementById('cupom').value.trim().toUpperCase();
         const precoCupom = parseFloat(document.getElementById('precoCupom').value);
         const comentario = document.getElementById('comentario').value.trim();
-        const isPix = document.getElementById('pixCheckbox').checked;
+        const isPix = document.getElementById('pixCheckbox').checked; // 🔥 NOVO
 
         if (!link || !titulo || isNaN(precoAtual)) {
             mostrarToast('Preencha Link, Título e Preço Atual.', true);
@@ -803,12 +574,14 @@
 
         const loja = detectarLoja(link);
 
+        // Calcula % OFF
         let desconto = '';
         if (!isNaN(precoAntigo) && precoAntigo > 0 && precoAntigo > precoAtual) {
             const pct = Math.round(((precoAntigo - precoAtual) / precoAntigo) * 100);
             desconto = ` (${pct}% OFF 🔥)`;
         }
 
+        // 🔥 NOVO: Sufixo Pix
         const pixSuffix = isPix ? ' no Pix 💠' : '';
 
         textoGerado = "";
@@ -839,6 +612,7 @@
         mostrarToast('Anúncio gerado! 🎉');
     }
 
+    // ========== TACHAR TEXTO ==========
     function tacharTexto(texto) {
         return texto.split('').map(char => char + '\u0336').join('');
     }
@@ -854,11 +628,11 @@
         document.getElementById('resultBox').textContent = '';
         document.getElementById('resultArea').style.display = 'none';
         document.getElementById('storeBadge').style.display = 'none';
-        fecharImagem();
         document.getElementById('link').focus();
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
+    // ========== 🔥 NOVO: LIMPAR NOTAS ==========
     function limparNotas() {
         if (!document.getElementById('notas').value.trim()) return;
         if (confirm('Tem certeza que quer apagar o bloco de anotações?')) {
@@ -867,7 +641,7 @@
         }
     }
 
-    // ========== COPIAR TEXTO ==========
+    // ========== COPIAR ==========
     function copiarTexto() {
         if(!textoGerado) return;
         navigator.clipboard.writeText(textoGerado).then(() => {
@@ -880,87 +654,17 @@
                 btn.innerHTML = original;
                 btn.style.backgroundColor = "var(--input-bg)";
                 btn.style.color = "var(--text-primary)";
+                limparTudo();
             }, 1500);
         });
     }
 
-    // ========== WHATSAPP SIMPLES ==========
+    // ========== WHATSAPP ==========
     function enviarWhatsApp() {
         if (!textoGerado) { mostrarToast('Gere o anúncio primeiro!', true); return; }
         const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(textoGerado)}`;
         window.open(url, '_blank');
         setTimeout(() => limparTudo(), 500);
-    }
-
-    // ========== 🆕 WHATSAPP COM IMAGEM (sem preview feio) ==========
-    async function enviarWhatsAppComImagem() {
-        if (!textoGerado) {
-            mostrarToast('Gere o anúncio primeiro!', true);
-            return;
-        }
-
-        if (!imagemAtualUrl) {
-            mostrarToast('Busque a imagem primeiro (botão 🖼️).', true);
-            return;
-        }
-
-        // 1) Copia a IMAGEM pra área de transferência
-        try {
-            mostrarToast('Copiando imagem... ⏳');
-
-            let blob = imagemBlob;
-            if (!blob) {
-                const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(imagemAtualUrl)}`;
-                const response = await fetch(proxyUrl);
-                blob = await response.blob();
-            }
-
-            if (!navigator.clipboard || !window.ClipboardItem) {
-                throw new Error('Navegador não suporta cópia de imagem');
-            }
-
-            const item = new ClipboardItem({ [blob.type]: blob });
-            await navigator.clipboard.write([item]);
-
-            mostrarToast('Imagem copiada! 📋');
-        } catch (err) {
-            console.error(err);
-            mostrarToast('Erro ao copiar imagem. Use o botão Baixar 💾', true);
-            return;
-        }
-
-        // 2) Guarda o texto pra colar depois
-        // Como só podemos ter 1 coisa na área de transferência,
-        // vamos copiar o TEXTO também e mostrar o modal
-
-        // Aguarda um pouco e abre o modal
-        setTimeout(() => {
-            document.getElementById('modalInstrucoes').classList.add('show');
-        }, 500);
-    }
-
-    function fecharModal() {
-        document.getElementById('modalInstrucoes').classList.remove('show');
-    }
-
-    function abrirWhatsApp() {
-        // Copia o texto pra área de transferência (sobrescreve a imagem, mas ela já foi colada)
-        // Na verdade, o usuário já colou a imagem, agora cola o texto
-
-        // Estratégia: envia o texto via URL do WhatsApp (que já preenche a mensagem)
-        // E o usuário só precisa colar a imagem antes de enviar
-
-        // Fecha o modal
-        document.getElementById('modalInstrucoes').classList.remove('show');
-
-        // Abre o WhatsApp com o texto
-        const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(textoGerado)}`;
-        window.open(url, '_blank');
-
-        // Dá uma dica final
-        setTimeout(() => {
-            mostrarToast('💡 Cole a imagem (Ctrl+V) antes de enviar!');
-        }, 1500);
     }
 
     // ========== EXPORTAR COMO IMAGEM ==========
@@ -981,6 +685,7 @@
             document.getElementById('cardOldPrice').style.display = 'none';
         }
 
+        // 🔥 NOVO: Preço com badge Pix no card
         const pixBadge = d.isPix ? ' <span class="card-pix-badge">💠 no Pix</span>' : '';
         document.getElementById('cardNewPrice').innerHTML = `Por: ${formatarMoeda(d.precoAtual)}${d.desconto}${pixBadge}`;
 
@@ -1060,21 +765,65 @@
             list.appendChild(item);
 
             try {
-                const html = await fetchComProxy(link);
-                const imagemUrl = extrairImagemDoHTML(html);
+                const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(link)}`;
+                const response = await fetch(proxyUrl);
+                const html = await response.text();
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
 
-                if (!imagemUrl) throw new Error('Sem imagem');
+                let titulo = '';
+                const ogTitle = doc.querySelector('meta[property="og:title"]');
+                if (ogTitle) titulo = ogTitle.getAttribute('content');
+                if (!titulo) {
+                    const t = doc.querySelector('title');
+                    if (t) titulo = t.textContent;
+                }
+                if (titulo) {
+                    titulo = titulo.replace(/\s*\|\s*Mercado Livre.*$/i, '')
+                                   .replace(/\s*-\s*Mercado Livre.*$/i, '')
+                                   .replace(/^Mercado Livre\s*[-|]\s*/i, '')
+                                   .replace(/\s*\|\s*Shopee.*$/i, '')
+                                   .replace(/\s*-\s*Shopee.*$/i, '')
+                                   .trim();
+                }
 
-                const textoComLink = `👉 ${link}`;
+                let preco = null;
+                const ogPrice = doc.querySelector('meta[property="product:price:amount"]');
+                if (ogPrice) preco = parseFloat(ogPrice.getAttribute('content'));
+
+                if (!preco) {
+                    const scripts = doc.querySelectorAll('script[type="application/ld+json"]');
+                    for (const s of scripts) {
+                        try {
+                            const json = JSON.parse(s.textContent);
+                            if (json.offers?.price) { preco = parseFloat(json.offers.price); break; }
+                            if (Array.isArray(json.offers) && json.offers[0]?.price) { preco = parseFloat(json.offers[0].price); break; }
+                        } catch (e) {}
+                    }
+                }
+
+                if (!titulo || !preco) throw new Error('Dados incompletos');
+
+                const lojaLote = detectarLoja(link);
+
+                let texto = '';
+                if (comentarioPadrao) texto += `${comentarioPadrao}\n\n`;
+                texto += `🐦 ${titulo}\n\n`;
+                texto += `✅ Por: ${formatarMoeda(preco)}\n`;
+
+                if (lojaLote === 'shopee') {
+                    texto += `\n👇 Compre aqui 👇\n${link}`;
+                } else {
+                    texto += `\n👉 ${link}`;
+                }
 
                 item.className = 'batch-item';
                 item.innerHTML = `
-                    <div class="batch-item-title">✅ Imagem encontrada</div>
-                    <img src="${imagemUrl}" style="width:100%; max-height:150px; object-fit:contain; border-radius:6px; margin:8px 0; background:#000;" onerror="this.style.display='none'">
-                    <div class="batch-item-text">${link}</div>
+                    <div class="batch-item-title">✅ ${titulo}</div>
+                    <div class="batch-item-text">${texto}</div>
                     <div class="batch-item-actions">
-                        <button class="btn-copy" onclick="copiarTextoItem(\`${textoComLink.replace(/`/g, '\\`')}\`)">Copiar 📋</button>
-                        <button class="btn-download-img" onclick="window.open('${imagemUrl}', '_blank')">Abrir Imagem 🖼️</button>
+                        <button class="btn-copy" onclick="copiarTextoItem(\`${texto.replace(/`/g, '\\`')}\`)">Copiar 📋</button>
+                        <button class="btn-whatsapp" onclick="enviarWhatsItem(\`${texto.replace(/`/g, '\\`')}\`)">WhatsApp</button>
                     </div>
                 `;
                 sucessos++;
@@ -1100,6 +849,11 @@
         navigator.clipboard.writeText(texto).then(() => mostrarToast('Copiado! ✅'));
     }
 
+    function enviarWhatsItem(texto) {
+        window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(texto)}`, '_blank');
+    }
+
+    // Enter avança para o próximo campo
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' && e.target.tagName === 'INPUT' && !e.shiftKey) {
             e.preventDefault();
