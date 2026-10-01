@@ -68,7 +68,7 @@
         .template-btn { padding: 6px 10px; background: var(--input-bg); border: 1px solid #444; border-radius: 20px; color: var(--text-secondary); font-size: 0.75rem; cursor: pointer; transition: all 0.2s; width: auto; margin: 0; }
         .template-btn:hover { background: var(--accent-green); color: #000; border-color: var(--accent-green); }
 
-        /* 🔥 NOVO: Botão Pix */
+        /* Botão Pix */
         .pix-row {
             display: flex;
             align-items: center;
@@ -119,7 +119,7 @@
         .pix-toggle .pix-label.active { color: var(--accent-pix); }
         .pix-icon { font-size: 1.1rem; }
 
-        /* 🔥 NOVO: Campo de anotações */
+        /* Campo de anotações */
         .notes-area {
             margin-top: 25px;
             border-top: 1px dashed #444;
@@ -198,6 +198,14 @@
             vertical-align: middle;
         }
         #cardPreview .card-coupon { background: var(--accent-orange); color: #000; padding: 8px 14px; border-radius: 8px; font-weight: bold; display: inline-block; margin-bottom: 15px; font-size: 0.95rem; }
+        #cardPreview .card-coupon code {
+            background: rgba(0,0,0,0.35);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 1em;
+            letter-spacing: 0.5px;
+        }
         #cardPreview .card-cta { background: var(--accent-green); color: #000; padding: 12px; border-radius: 10px; text-align: center; font-weight: bold; font-size: 1.1rem; margin-top: 15px; }
         #cardPreview .card-footer { text-align: center; font-size: 0.8rem; color: #666; margin-top: 15px; }
 
@@ -296,7 +304,6 @@
             </div>
         </div>
 
-        <!-- 🔥 NOVO: Toggle Pix -->
         <div class="pix-row">
             <label class="pix-toggle">
                 <input type="checkbox" id="pixCheckbox" onchange="togglePix()">
@@ -335,7 +342,6 @@
             </div>
         </div>
 
-        <!-- 🔥 NOVO: Campo de anotações -->
         <div class="notes-area">
             <div class="notes-header">
                 <div class="notes-title">📝 Bloco de Anotações (não afeta o anúncio)</div>
@@ -418,7 +424,7 @@
         document.getElementById('tabLote').style.display = tab === 'lote' ? 'block' : 'none';
     }
 
-    // ========== 🔥 NOVO: TOGGLE PIX ==========
+    // ========== TOGGLE PIX ==========
     function togglePix() {
         const checkbox = document.getElementById('pixCheckbox');
         const label = document.getElementById('pixLabel');
@@ -565,7 +571,7 @@
         const cupom = document.getElementById('cupom').value.trim().toUpperCase();
         const precoCupom = parseFloat(document.getElementById('precoCupom').value);
         const comentario = document.getElementById('comentario').value.trim();
-        const isPix = document.getElementById('pixCheckbox').checked; // 🔥 NOVO
+        const isPix = document.getElementById('pixCheckbox').checked;
 
         if (!link || !titulo || isNaN(precoAtual)) {
             mostrarToast('Preencha Link, Título e Preço Atual.', true);
@@ -581,7 +587,6 @@
             desconto = ` (${pct}% OFF 🔥)`;
         }
 
-        // 🔥 NOVO: Sufixo Pix
         const pixSuffix = isPix ? ' no Pix 💠' : '';
 
         textoGerado = "";
@@ -593,8 +598,10 @@
             textoGerado += `❌ De: ${tacharTexto(precoAntigoFormatado)}\n`;
         }
         textoGerado += `✅ Por: ${formatarMoeda(precoAtual)}${pixSuffix}${desconto}\n`;
+
+        // 🔥 Cupom formatado como código inline no WhatsApp (entre crases)
         if (cupom) {
-            textoGerado += `🎟️ Cupom: ${cupom}\n`;
+            textoGerado += `🎟️ Cupom: \`${cupom}\`\n`;
             if (!isNaN(precoCupom) && precoCupom > 0) textoGerado += `💥 Preço final com cupom: ${formatarMoeda(precoCupom)}\n`;
         }
 
@@ -632,7 +639,7 @@
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    // ========== 🔥 NOVO: LIMPAR NOTAS ==========
+    // ========== LIMPAR NOTAS ==========
     function limparNotas() {
         if (!document.getElementById('notas').value.trim()) return;
         if (confirm('Tem certeza que quer apagar o bloco de anotações?')) {
@@ -685,12 +692,12 @@
             document.getElementById('cardOldPrice').style.display = 'none';
         }
 
-        // 🔥 NOVO: Preço com badge Pix no card
         const pixBadge = d.isPix ? ' <span class="card-pix-badge">💠 no Pix</span>' : '';
         document.getElementById('cardNewPrice').innerHTML = `Por: ${formatarMoeda(d.precoAtual)}${d.desconto}${pixBadge}`;
 
+        // 🔥 Cupom com estilo de código no card
         if (d.cupom) {
-            document.getElementById('cardCoupon').textContent = `🎟️ CUPOM: ${d.cupom}`;
+            document.getElementById('cardCoupon').innerHTML = `🎟️ CUPOM: <code>${d.cupom}</code>`;
             document.getElementById('cardCoupon').style.display = 'inline-block';
         } else {
             document.getElementById('cardCoupon').style.display = 'none';
