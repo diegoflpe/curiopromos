@@ -605,11 +605,14 @@
             if (!isNaN(precoCupom) && precoCupom > 0) textoGerado += `💥 Preço final com cupom: ${formatarMoeda(precoCupom)}\n`;
         }
 
-        if (loja === 'shopee') {
-            textoGerado += `\nCompre aqui 👇\n${link}`;
-        } else {
-            textoGerado += `\n👉 ${link}`;
-        }
+if (loja === 'shopee') {
+    textoGerado += `\nCompre aqui 👇\n${link}`;
+} else {
+    textoGerado += `\n👉 ${link}`;
+}
+
+textoGerado += `\n\n*_⚡ Aproveite! Esta promoção pode ser alterada ou encerrada a qualquer momento._*`;
+
 
         dadosAtuais = { comentario, titulo, precoAtual, precoAntigo, cupom, precoCupom, desconto, loja, link, isPix };
 
