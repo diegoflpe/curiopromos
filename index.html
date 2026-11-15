@@ -22,13 +22,10 @@
     --danger: #dc2626;
     --whatsapp: #25D366;
     --pix: #0ea5a4;
-    --purple: #7c3aed;
-    --orange: #ea580c;
-    --radius: 10px;
-    --radius-lg: 14px;
+    --radius: 8px;
+    --radius-lg: 12px;
     --shadow-sm: 0 1px 2px rgba(15,23,42,.06);
-    --shadow: 0 4px 16px rgba(15,23,42,.06);
-    --transition: 150ms ease;
+    --transition: 120ms ease;
   }
   [data-theme="dark"] {
     --bg: #0f1115;
@@ -43,7 +40,6 @@
     --primary-hover: #16a34a;
     --primary-fg: #06210f;
     --shadow-sm: 0 1px 2px rgba(0,0,0,.4);
-    --shadow: 0 4px 20px rgba(0,0,0,.5);
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -52,9 +48,9 @@
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     background: var(--bg);
     color: var(--text);
-    font-size: 14px;
-    line-height: 1.5;
-    padding: 24px 16px 64px;
+    font-size: 13px;
+    line-height: 1.4;
+    padding: 12px;
     -webkit-font-smoothing: antialiased;
   }
 
@@ -63,46 +59,46 @@
   .app-grid {
     display: grid;
     grid-template-columns: minmax(0, 1fr);
-    gap: 20px;
+    gap: 10px;
   }
-  @media (min-width: 960px) {
+  @media (min-width: 900px) {
     .app-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: start; }
-    .col-preview { position: sticky; top: 20px; }
+    .col-preview { position: sticky; top: 10px; }
   }
 
   /* ============ HEADER ============ */
   .topbar {
     display: flex; align-items: center; justify-content: space-between;
-    gap: 12px; margin-bottom: 20px;
+    gap: 10px; margin-bottom: 10px;
   }
-  .brand { display: flex; align-items: center; gap: 10px; }
+  .brand { display: flex; align-items: center; gap: 8px; }
   .brand-mark {
-    width: 34px; height: 34px; border-radius: 9px;
+    width: 28px; height: 28px; border-radius: 7px;
     background: var(--primary); color: var(--primary-fg);
-    display: grid; place-items: center; font-weight: 700; font-size: 15px;
+    display: grid; place-items: center; font-weight: 700; font-size: 13px;
   }
-  .brand-text h1 { font-size: 15px; font-weight: 700; letter-spacing: -.01em; }
-  .brand-text p { font-size: 12px; color: var(--text-muted); }
+  .brand-text h1 { font-size: 14px; font-weight: 700; letter-spacing: -.01em; }
+  .brand-text p { font-size: 11px; color: var(--text-muted); }
 
   .icon-btn {
     display: inline-flex; align-items: center; justify-content: center;
-    width: 36px; height: 36px; border-radius: var(--radius);
+    width: 32px; height: 32px; border-radius: var(--radius);
     border: 1px solid var(--border); background: var(--surface);
     color: var(--text-muted); cursor: pointer; transition: var(--transition);
   }
   .icon-btn:hover { background: var(--surface-2); color: var(--text); }
-  .icon-btn svg { width: 18px; height: 18px; }
+  .icon-btn svg { width: 16px; height: 16px; }
 
   /* ============ TABS ============ */
   .tabs {
-    display: inline-flex; gap: 4px; padding: 4px;
+    display: inline-flex; gap: 2px; padding: 2px;
     background: var(--surface-2); border-radius: var(--radius);
-    margin-bottom: 20px;
+    margin-bottom: 10px;
   }
   .tab {
-    padding: 8px 14px; border-radius: 7px; border: none;
+    padding: 6px 12px; border-radius: 6px; border: none;
     background: transparent; color: var(--text-muted);
-    font-size: 13px; font-weight: 600; cursor: pointer;
+    font-size: 12px; font-weight: 600; cursor: pointer;
     transition: var(--transition);
   }
   .tab.active { background: var(--surface); color: var(--text); box-shadow: var(--shadow-sm); }
@@ -113,53 +109,52 @@
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: var(--radius-lg);
-    padding: 18px;
+    padding: 12px;
     box-shadow: var(--shadow-sm);
   }
-  .card + .card { margin-top: 14px; }
+  .card + .card { margin-top: 8px; }
   .card-header {
     display: flex; align-items: center; justify-content: space-between;
-    margin-bottom: 14px; gap: 8px;
+    margin-bottom: 10px; gap: 8px;
   }
   .card-title {
-    font-size: 12px; font-weight: 700; letter-spacing: .04em;
+    font-size: 11px; font-weight: 700; letter-spacing: .04em;
     text-transform: uppercase; color: var(--text-subtle);
   }
 
   /* ============ FORM ============ */
-  .field { margin-bottom: 12px; }
+  .field { margin-bottom: 8px; }
   .field:last-child { margin-bottom: 0; }
   .field label {
-    display: block; font-size: 12px; font-weight: 600;
-    color: var(--text-muted); margin-bottom: 6px;
+    display: block; font-size: 11px; font-weight: 600;
+    color: var(--text-muted); margin-bottom: 4px;
   }
   .field input, .field textarea {
-    width: 100%; padding: 10px 12px;
+    width: 100%; padding: 8px 10px;
     background: var(--surface-2); border: 1px solid var(--border);
     border-radius: var(--radius); color: var(--text);
-    font-size: 14px; font-family: inherit; outline: none;
+    font-size: 13px; font-family: inherit; outline: none;
     transition: var(--transition);
   }
   .field input:hover, .field textarea:hover { border-color: var(--border-strong); }
   .field input:focus, .field textarea:focus {
     border-color: var(--primary);
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 20%, transparent);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary) 20%, transparent);
   }
-  .field textarea { resize: vertical; min-height: 64px; }
-  .field .hint { font-size: 11px; color: var(--text-subtle); margin-top: 5px; }
+  .field textarea { resize: vertical; min-height: 48px; }
+  .field .hint { font-size: 10px; color: var(--text-subtle); margin-top: 3px; }
 
-  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-  @media (max-width: 480px) { .row { grid-template-columns: 1fr; } }
-
-  .input-btn-group { display: flex; gap: 6px; }
-  .input-btn-group input { flex: 1; }
-  .input-btn-group .icon-btn { height: 42px; width: 42px; flex-shrink: 0; }
+  /* FIX: Campo do link não estoura */
+  .row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px; }
+  .input-btn-group { display: flex; gap: 4px; }
+  .input-btn-group input { flex: 1; min-width: 0; }
+  .input-btn-group .icon-btn { height: 34px; width: 34px; flex-shrink: 0; }
 
   /* ============ STORE BADGE ============ */
   .badge {
     display: inline-flex; align-items: center; gap: 4px;
-    padding: 2px 8px; border-radius: 20px;
-    font-size: 11px; font-weight: 600; line-height: 1.4;
+    padding: 2px 6px; border-radius: 12px;
+    font-size: 10px; font-weight: 600; line-height: 1.4;
   }
   .badge.shopee { background: #fee2e2; color: #b91c1c; }
   .badge.ml     { background: #fef3c7; color: #92400e; }
@@ -169,54 +164,55 @@
   [data-theme="dark"] .badge.amazon { background: #431407; color: #fdba74; }
 
   /* ============ CHIPS ============ */
-  .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
   .chip {
-    padding: 5px 10px; border-radius: 20px;
+    padding: 3px 8px; border-radius: 12px;
     background: var(--surface-2); border: 1px solid var(--border);
-    color: var(--text-muted); font-size: 12px; cursor: pointer;
+    color: var(--text-muted); font-size: 11px; cursor: pointer;
     transition: var(--transition);
   }
   .chip:hover { border-color: var(--primary); color: var(--primary); }
 
-  /* ============ SWITCH PIX ============ */
+  /* FIX: Switch Pix */
   .switch-row {
     display: flex; align-items: center; justify-content: space-between;
-    padding: 10px 12px; background: var(--surface-2);
+    padding: 8px 10px; background: var(--surface-2);
     border: 1px solid var(--border); border-radius: var(--radius);
     cursor: pointer; user-select: none; transition: var(--transition);
+    margin-bottom: 8px;
   }
   .switch-row:hover { border-color: var(--border-strong); }
-  .switch-row .switch-label { font-size: 13px; font-weight: 500; }
-  .switch-row small { display: block; color: var(--text-subtle); font-size: 11px; }
+  .switch-row .switch-label { font-size: 12px; font-weight: 600; }
+  .switch-row small { display: block; color: var(--text-subtle); font-size: 10px; }
   .switch {
-    position: relative; width: 36px; height: 20px; flex-shrink: 0;
+    position: relative; width: 32px; height: 18px; flex-shrink: 0;
   }
   .switch input { position: absolute; opacity: 0; inset: 0; cursor: pointer; }
   .switch-track {
     position: absolute; inset: 0; background: var(--border-strong);
-    border-radius: 20px; transition: var(--transition);
+    border-radius: 18px; transition: var(--transition);
   }
   .switch-track::after {
     content: ''; position: absolute; top: 2px; left: 2px;
-    width: 16px; height: 16px; border-radius: 50%;
+    width: 14px; height: 14px; border-radius: 50%;
     background: #fff; transition: var(--transition);
     box-shadow: 0 1px 2px rgba(0,0,0,.2);
   }
   .switch input:checked + .switch-track { background: var(--pix); }
-  .switch input:checked + .switch-track::after { transform: translateX(16px); }
+  .switch input:checked + .switch-track::after { transform: translateX(14px); }
   .switch input:focus-visible + .switch-track {
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--pix) 30%, transparent);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--pix) 30%, transparent);
   }
 
   /* ============ BUTTONS ============ */
   .btn {
     display: inline-flex; align-items: center; justify-content: center;
-    gap: 8px; padding: 11px 16px; border-radius: var(--radius);
-    border: 1px solid transparent; font-size: 13px; font-weight: 600;
+    gap: 6px; padding: 8px 12px; border-radius: var(--radius);
+    border: 1px solid transparent; font-size: 12px; font-weight: 600;
     font-family: inherit; cursor: pointer; transition: var(--transition);
     white-space: nowrap;
   }
-  .btn:focus-visible { outline: none; box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 30%, transparent); }
+  .btn:focus-visible { outline: none; box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary) 30%, transparent); }
   .btn-primary { background: var(--primary); color: var(--primary-fg); }
   .btn-primary:hover { background: var(--primary-hover); }
   .btn-secondary {
@@ -232,74 +228,80 @@
   }
   .btn-ghost:hover { color: var(--text); border-color: var(--border-strong); }
   .btn-block { width: 100%; }
-  .btn svg { width: 16px; height: 16px; }
+  .btn svg { width: 14px; height: 14px; }
 
-  .actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
-  .actions .btn { flex: 1; min-width: 130px; }
+  .actions { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+  .actions .btn { flex: 1; min-width: 100px; }
+
+  /* FIX: Botão gerar com respiro */
+  .generate-wrap {
+    margin-top: 12px;
+    margin-bottom: 4px;
+  }
 
   /* ============ RESULT ============ */
-  .result { display: none; margin-top: 18px; }
+  .result { display: none; margin-top: 10px; }
   .result.visible { display: block; }
   .result pre {
     background: var(--surface-2); border: 1px solid var(--border);
-    border-radius: var(--radius); padding: 14px;
+    border-radius: var(--radius); padding: 10px;
     font-family: ui-monospace, 'SF Mono', Consolas, monospace;
-    font-size: 12.5px; line-height: 1.6; color: var(--text);
+    font-size: 11px; line-height: 1.5; color: var(--text);
     white-space: pre-wrap; word-break: break-word;
-    max-height: 320px; overflow-y: auto;
+    max-height: 260px; overflow-y: auto;
   }
 
   /* ============ NOTES ============ */
-  .notes { margin-top: 18px; }
+  .notes { margin-top: 8px; }
   .notes-head {
     display: flex; align-items: center; justify-content: space-between;
-    margin-bottom: 8px;
+    margin-bottom: 6px;
   }
   .notes-head .card-title { margin: 0; }
-  .notes textarea { min-height: 120px; font-family: inherit; }
+  .notes textarea { min-height: 80px; font-family: inherit; }
 
   /* ============ BATCH ============ */
   .progress {
-    margin-top: 14px; padding: 12px;
+    margin-top: 10px; padding: 10px;
     background: var(--surface-2); border-radius: var(--radius);
     display: none;
   }
   .progress.visible { display: block; }
   .progress-head {
     display: flex; justify-content: space-between;
-    font-size: 12px; color: var(--text-muted); margin-bottom: 8px;
+    font-size: 11px; color: var(--text-muted); margin-bottom: 6px;
   }
   .progress-bar {
-    height: 6px; background: var(--border);
-    border-radius: 3px; overflow: hidden;
+    height: 4px; background: var(--border);
+    border-radius: 2px; overflow: hidden;
   }
   .progress-fill {
     height: 100%; background: var(--primary);
     width: 0; transition: width 200ms ease;
   }
-  .batch-list { margin-top: 14px; max-height: 480px; overflow-y: auto; }
+  .batch-list { margin-top: 10px; max-height: 400px; overflow-y: auto; }
   .batch-item {
-    padding: 12px; border-radius: var(--radius);
+    padding: 10px; border-radius: var(--radius);
     background: var(--surface-2); border-left: 3px solid var(--primary);
-    margin-bottom: 8px;
+    margin-bottom: 6px;
   }
   .batch-item.error { border-left-color: var(--danger); }
-  .batch-item-title { font-weight: 600; font-size: 13px; margin-bottom: 6px; }
+  .batch-item-title { font-weight: 600; font-size: 12px; margin-bottom: 4px; }
   .batch-item-text {
-    font-size: 12px; color: var(--text-muted);
-    white-space: pre-wrap; max-height: 80px; overflow-y: auto;
+    font-size: 11px; color: var(--text-muted);
+    white-space: pre-wrap; max-height: 60px; overflow-y: auto;
     font-family: ui-monospace, monospace;
   }
-  .batch-item-actions { display: flex; gap: 6px; margin-top: 8px; }
-  .batch-item-actions .btn { padding: 6px 10px; font-size: 11px; flex: 1; min-width: auto; }
+  .batch-item-actions { display: flex; gap: 4px; margin-top: 6px; }
+  .batch-item-actions .btn { padding: 4px 8px; font-size: 10px; flex: 1; min-width: auto; }
 
   /* ============ TOAST ============ */
   .toast {
-    position: fixed; bottom: 24px; left: 50%;
+    position: fixed; bottom: 16px; left: 50%;
     transform: translateX(-50%) translateY(80px);
     background: var(--text); color: var(--bg);
-    padding: 10px 18px; border-radius: 24px;
-    font-size: 13px; font-weight: 600;
+    padding: 8px 16px; border-radius: 20px;
+    font-size: 12px; font-weight: 600;
     box-shadow: 0 8px 24px rgba(0,0,0,.2);
     opacity: 0; pointer-events: none;
     transition: transform 200ms ease, opacity 200ms ease;
@@ -310,7 +312,7 @@
 
   /* ============ LOADING ============ */
   .spinner {
-    width: 14px; height: 14px; border-radius: 50%;
+    width: 12px; height: 12px; border-radius: 50%;
     border: 2px solid currentColor; border-top-color: transparent;
     animation: spin .7s linear infinite; display: inline-block;
   }
@@ -414,7 +416,7 @@
         </div>
         <div class="field">
           <label for="comentario">Comentário pessoal <span class="hint" style="display:inline">(1ª linha)</span></label>
-          <textarea id="comentario" rows="2" placeholder="Ex: ACHADINHO DO DIA! Corre que é por tempo limitado."></textarea>
+          <textarea id="comentario" rows="1" placeholder="Ex: ACHADINHO DO DIA! Corre que é por tempo limitado."></textarea>
           <div class="chips">
             <button class="chip" onclick="usarTemplate('🔥 ACHADINHO DO DIA! Corre que é por tempo limitado!')">🔥 Achadinho</button>
             <button class="chip" onclick="usarTemplate('🚨 PREÇO BAIXOU! Aproveita agora!')">🚨 Baixou</button>
@@ -422,6 +424,12 @@
             <button class="chip" onclick="usarTemplate('🎁 ACHADO NO MERCADO LIVRE!')">🎁 ML</button>
             <button class="chip" onclick="usarTemplate('💸 TÁ DE GRAÇA! Olha esse preço!')">💸 Barato</button>
             <button class="chip" onclick="usarTemplate('👀 OLHA ISSO! Que oportunidade!')">👀 Olha</button>
+            <button class="chip" onclick="usarTemplate('🤑 CORRE QUE TÁ ACABANDO!')">🤑 Corre</button>
+            <button class="chip" onclick="usarTemplate('📉 MENOR PREÇO DOS ÚLTIMOS DIAS!')">📉 Menor</button>
+            <button class="chip" onclick="usarTemplate('🏃‍♂️ ÚLTIMAS UNIDADES! Garanta a sua!')">🏃‍♂️ Últimas</button>
+            <button class="chip" onclick="usarTemplate('💎 OFERTA IMPERDÍVEL!')">💎 Imperdível</button>
+            <button class="chip" onclick="usarTemplate('🎯 OPORTUNIDADE ÚNICA!')">🎯 Única</button>
+            <button class="chip" onclick="usarTemplate('⏰ É SÓ HOJE! Não perca!')">⏰ Hoje</button>
           </div>
         </div>
       </div>
@@ -468,10 +476,13 @@
         </div>
       </div>
 
-      <button class="btn btn-primary btn-block" onclick="gerarAnuncio()">
-        Gerar anúncio
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-      </button>
+      <!-- FIX: Respiro no botão Gerar -->
+      <div class="generate-wrap">
+        <button class="btn btn-primary btn-block" onclick="gerarAnuncio()">
+          Gerar anúncio
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+      </div>
     </div>
 
     <!-- COLUNA DIREITA: PREVIEW -->
@@ -501,7 +512,7 @@
             </button>
           </div>
         </div>
-        <div id="emptyState" style="padding:24px 0;text-align:center;color:var(--text-subtle);font-size:13px">
+        <div id="emptyState" style="padding:16px 0;text-align:center;color:var(--text-subtle);font-size:12px">
           Preencha o formulário e clique em <strong>Gerar anúncio</strong> para ver a prévia aqui.
         </div>
       </div>
@@ -523,7 +534,7 @@
       <div class="card-header"><span class="card-title">Links em lote</span></div>
       <div class="field">
         <label for="linksLote">Um link por linha</label>
-        <textarea id="linksLote" rows="6" placeholder="https://mercadolivre.com/sec/abc123&#10;https://shopee.com.br/...&#10;https://amazon.com.br/..."></textarea>
+        <textarea id="linksLote" rows="4" placeholder="https://mercadolivre.com/sec/abc123&#10;https://shopee.com.br/...&#10;https://amazon.com.br/..."></textarea>
         <p class="hint">Tentaremos buscar título e preço automaticamente em cada link.</p>
       </div>
       <div class="field">
@@ -592,7 +603,7 @@ function mudarTab(tab, el) {
   document.getElementById('tabLote').classList.toggle('hidden', tab !== 'lote');
 }
 
-function togglePix() { /* feedback visual já é feito via CSS */ }
+function togglePix() { /* CSS cuida do visual */ }
 
 /* ---------- DETECTAR LOJA ---------- */
 function detectarLoja(link = null) {
