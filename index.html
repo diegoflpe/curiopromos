@@ -6,39 +6,21 @@
 <title>Gerador de Ofertas — Curió Promos</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
-  /* ============ TOKENS ============ */
   :root {
-    --bg: #f6f7f9;
-    --surface: #ffffff;
-    --surface-2: #f1f3f6;
-    --border: #e3e6ea;
-    --border-strong: #d0d5db;
-    --text: #1a1d21;
-    --text-muted: #5f6772;
-    --text-subtle: #8b939e;
-    --primary: #16a34a;
-    --primary-hover: #15803d;
-    --primary-fg: #ffffff;
-    --danger: #dc2626;
-    --whatsapp: #25D366;
-    --pix: #0ea5a4;
-    --radius: 8px;
-    --radius-lg: 12px;
+    --bg: #f6f7f9; --surface: #ffffff; --surface-2: #f1f3f6;
+    --border: #e3e6ea; --border-strong: #d0d5db;
+    --text: #1a1d21; --text-muted: #5f6772; --text-subtle: #8b939e;
+    --primary: #16a34a; --primary-hover: #15803d; --primary-fg: #ffffff;
+    --danger: #dc2626; --whatsapp: #25D366; --pix: #0ea5a4;
+    --radius: 8px; --radius-lg: 12px;
     --shadow-sm: 0 1px 2px rgba(15,23,42,.06);
     --transition: 120ms ease;
   }
   [data-theme="dark"] {
-    --bg: #0f1115;
-    --surface: #161a20;
-    --surface-2: #1e232b;
-    --border: #262c36;
-    --border-strong: #333b47;
-    --text: #e8ecf1;
-    --text-muted: #9aa3b0;
-    --text-subtle: #6b7482;
-    --primary: #22c55e;
-    --primary-hover: #16a34a;
-    --primary-fg: #06210f;
+    --bg: #0f1115; --surface: #161a20; --surface-2: #1e232b;
+    --border: #262c36; --border-strong: #333b47;
+    --text: #e8ecf1; --text-muted: #9aa3b0; --text-subtle: #6b7482;
+    --primary: #22c55e; --primary-hover: #16a34a; --primary-fg: #06210f;
     --shadow-sm: 0 1px 2px rgba(0,0,0,.4);
   }
 
@@ -46,89 +28,43 @@
   html, body { height: 100%; }
   body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    font-size: 13px;
-    line-height: 1.4;
-    padding: 12px;
+    background: var(--bg); color: var(--text);
+    font-size: 13px; line-height: 1.4; padding: 12px;
     -webkit-font-smoothing: antialiased;
   }
 
-  /* ============ LAYOUT ============ */
   .wrap { max-width: 1120px; margin: 0 auto; }
-  .app-grid {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr);
-    gap: 10px;
-  }
+  .app-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; }
   @media (min-width: 900px) {
     .app-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: start; }
     .col-preview { position: sticky; top: 10px; }
   }
 
-  /* ============ HEADER ============ */
-  .topbar {
-    display: flex; align-items: center; justify-content: space-between;
-    gap: 10px; margin-bottom: 10px;
-  }
+  /* HEADER & TABS */
+  .topbar { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
   .brand { display: flex; align-items: center; gap: 8px; }
-  .brand-mark {
-    width: 28px; height: 28px; border-radius: 7px;
-    background: var(--primary); color: var(--primary-fg);
-    display: grid; place-items: center; font-weight: 700; font-size: 13px;
-  }
+  .brand-mark { width: 28px; height: 28px; border-radius: 7px; background: var(--primary); color: var(--primary-fg); display: grid; place-items: center; font-weight: 700; font-size: 13px; }
   .brand-text h1 { font-size: 14px; font-weight: 700; letter-spacing: -.01em; }
   .brand-text p { font-size: 11px; color: var(--text-muted); }
-
-  .icon-btn {
-    display: inline-flex; align-items: center; justify-content: center;
-    width: 32px; height: 32px; border-radius: var(--radius);
-    border: 1px solid var(--border); background: var(--surface);
-    color: var(--text-muted); cursor: pointer; transition: var(--transition);
-  }
+  .icon-btn { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: var(--radius); border: 1px solid var(--border); background: var(--surface); color: var(--text-muted); cursor: pointer; transition: var(--transition); }
   .icon-btn:hover { background: var(--surface-2); color: var(--text); }
   .icon-btn svg { width: 16px; height: 16px; }
 
-  /* ============ TABS ============ */
-  .tabs {
-    display: inline-flex; gap: 2px; padding: 2px;
-    background: var(--surface-2); border-radius: var(--radius);
-    margin-bottom: 10px;
-  }
-  .tab {
-    padding: 6px 12px; border-radius: 6px; border: none;
-    background: transparent; color: var(--text-muted);
-    font-size: 12px; font-weight: 600; cursor: pointer;
-    transition: var(--transition);
-  }
+  .tabs { display: inline-flex; gap: 2px; padding: 2px; background: var(--surface-2); border-radius: var(--radius); margin-bottom: 10px; }
+  .tab { padding: 6px 12px; border-radius: 6px; border: none; background: transparent; color: var(--text-muted); font-size: 12px; font-weight: 600; cursor: pointer; transition: var(--transition); }
   .tab.active { background: var(--surface); color: var(--text); box-shadow: var(--shadow-sm); }
   .tab:hover:not(.active) { color: var(--text); }
 
-  /* ============ CARDS ============ */
-  .card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-lg);
-    padding: 12px;
-    box-shadow: var(--shadow-sm);
-  }
+  /* CARDS & FORM */
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 12px; box-shadow: var(--shadow-sm); }
   .card + .card { margin-top: 8px; }
-  .card-header {
-    display: flex; align-items: center; justify-content: space-between;
-    margin-bottom: 10px; gap: 8px;
-  }
-  .card-title {
-    font-size: 11px; font-weight: 700; letter-spacing: .04em;
-    text-transform: uppercase; color: var(--text-subtle);
-  }
+  .card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; gap: 8px; }
+  .card-title { font-size: 11px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--text-subtle); }
 
-  /* ============ FORM ============ */
   .field { margin-bottom: 8px; }
   .field:last-child { margin-bottom: 0; }
-  .field label {
-    display: block; font-size: 11px; font-weight: 600;
-    color: var(--text-muted); margin-bottom: 4px;
-  }
+  .field label { display: block; font-size: 11px; font-weight: 600; color: var(--text-muted); margin-bottom: 4px; }
+  
   .field input, .field textarea {
     width: 100%; padding: 8px 10px;
     background: var(--surface-2); border: 1px solid var(--border);
@@ -137,195 +73,115 @@
     transition: var(--transition);
   }
   .field input:hover, .field textarea:hover { border-color: var(--border-strong); }
-  .field input:focus, .field textarea:focus {
-    border-color: var(--primary);
-    box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary) 20%, transparent);
-  }
+  .field input:focus, .field textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary) 20%, transparent); }
   .field textarea { resize: vertical; min-height: 48px; }
-  .field .hint { font-size: 10px; color: var(--text-subtle); margin-top: 3px; }
+  .field .hint { font-size: 10px; color: var(--text-subtle); margin-top: 4px; display: block; }
 
-  /* FIX: Campo do link não estoura */
   .row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px; }
-  .input-btn-group { display: flex; gap: 4px; }
-  .input-btn-group input { flex: 1; min-width: 0; }
-  .input-btn-group .icon-btn { height: 34px; width: 34px; flex-shrink: 0; }
 
-  /* ============ STORE BADGE ============ */
-  .badge {
-    display: inline-flex; align-items: center; gap: 4px;
-    padding: 2px 6px; border-radius: 12px;
-    font-size: 10px; font-weight: 600; line-height: 1.4;
+  /* FIX: Campo de link e botões */
+  .link-group {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    gap: 4px;
   }
+  .link-group input { width: 100%; }
+
+  /* STORE BADGE */
+  .badge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 6px; border-radius: 12px; font-size: 10px; font-weight: 600; line-height: 1.4; }
   .badge.shopee { background: #fee2e2; color: #b91c1c; }
-  .badge.ml     { background: #fef3c7; color: #92400e; }
+  .badge.ml { background: #fef3c7; color: #92400e; }
   .badge.amazon { background: #ffedd5; color: #9a3412; }
   [data-theme="dark"] .badge.shopee { background: #451a1a; color: #fca5a5; }
-  [data-theme="dark"] .badge.ml     { background: #422006; color: #fcd34d; }
+  [data-theme="dark"] .badge.ml { background: #422006; color: #fcd34d; }
   [data-theme="dark"] .badge.amazon { background: #431407; color: #fdba74; }
 
-  /* ============ CHIPS ============ */
+  /* CHIPS */
   .chips { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
-  .chip {
-    padding: 3px 8px; border-radius: 12px;
-    background: var(--surface-2); border: 1px solid var(--border);
-    color: var(--text-muted); font-size: 11px; cursor: pointer;
-    transition: var(--transition);
-  }
+  .chip { padding: 3px 8px; border-radius: 12px; background: var(--surface-2); border: 1px solid var(--border); color: var(--text-muted); font-size: 11px; cursor: pointer; transition: var(--transition); }
   .chip:hover { border-color: var(--primary); color: var(--primary); }
 
   /* FIX: Switch Pix */
   .switch-row {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 8px 10px; background: var(--surface-2);
-    border: 1px solid var(--border); border-radius: var(--radius);
-    cursor: pointer; user-select: none; transition: var(--transition);
-    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 10px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    cursor: pointer;
+    user-select: none;
+    transition: var(--transition);
+    margin-top: 4px;
   }
   .switch-row:hover { border-color: var(--border-strong); }
-  .switch-row .switch-label { font-size: 12px; font-weight: 600; }
-  .switch-row small { display: block; color: var(--text-subtle); font-size: 10px; }
+  .switch-text { display: flex; flex-direction: column; }
+  .switch-label { font-size: 12px; font-weight: 600; }
+  .switch-text small { color: var(--text-subtle); font-size: 10px; }
+  
   .switch {
-    position: relative; width: 32px; height: 18px; flex-shrink: 0;
+    position: relative;
+    width: 32px;
+    height: 18px;
+    flex-shrink: 0;
   }
-  .switch input { position: absolute; opacity: 0; inset: 0; cursor: pointer; }
-  .switch-track {
-    position: absolute; inset: 0; background: var(--border-strong);
-    border-radius: 18px; transition: var(--transition);
-  }
-  .switch-track::after {
-    content: ''; position: absolute; top: 2px; left: 2px;
-    width: 14px; height: 14px; border-radius: 50%;
-    background: #fff; transition: var(--transition);
-    box-shadow: 0 1px 2px rgba(0,0,0,.2);
-  }
+  .switch input { position: absolute; opacity: 0; inset: 0; cursor: pointer; margin: 0; }
+  .switch-track { position: absolute; inset: 0; background: var(--border-strong); border-radius: 18px; transition: var(--transition); }
+  .switch-track::after { content: ''; position: absolute; top: 2px; left: 2px; width: 14px; height: 14px; border-radius: 50%; background: #fff; transition: var(--transition); box-shadow: 0 1px 2px rgba(0,0,0,.2); }
   .switch input:checked + .switch-track { background: var(--pix); }
   .switch input:checked + .switch-track::after { transform: translateX(14px); }
-  .switch input:focus-visible + .switch-track {
-    box-shadow: 0 0 0 2px color-mix(in srgb, var(--pix) 30%, transparent);
-  }
 
-  /* ============ BUTTONS ============ */
-  .btn {
-    display: inline-flex; align-items: center; justify-content: center;
-    gap: 6px; padding: 8px 12px; border-radius: var(--radius);
-    border: 1px solid transparent; font-size: 12px; font-weight: 600;
-    font-family: inherit; cursor: pointer; transition: var(--transition);
-    white-space: nowrap;
-  }
+  /* BUTTONS */
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 8px 12px; border-radius: var(--radius); border: 1px solid transparent; font-size: 12px; font-weight: 600; font-family: inherit; cursor: pointer; transition: var(--transition); white-space: nowrap; }
   .btn:focus-visible { outline: none; box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary) 30%, transparent); }
   .btn-primary { background: var(--primary); color: var(--primary-fg); }
   .btn-primary:hover { background: var(--primary-hover); }
-  .btn-secondary {
-    background: var(--surface-2); color: var(--text);
-    border-color: var(--border);
-  }
+  .btn-secondary { background: var(--surface-2); color: var(--text); border-color: var(--border); }
   .btn-secondary:hover { border-color: var(--border-strong); }
   .btn-whatsapp { background: var(--whatsapp); color: #fff; }
   .btn-whatsapp:hover { filter: brightness(.95); }
-  .btn-ghost {
-    background: transparent; color: var(--text-muted);
-    border-color: var(--border);
-  }
+  .btn-ghost { background: transparent; color: var(--text-muted); border-color: var(--border); }
   .btn-ghost:hover { color: var(--text); border-color: var(--border-strong); }
   .btn-block { width: 100%; }
   .btn svg { width: 14px; height: 14px; }
 
+  /* FIX: Respiro no botão Gerar */
+  .generate-wrap { margin-top: 12px; }
   .actions { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
   .actions .btn { flex: 1; min-width: 100px; }
 
-  /* FIX: Botão gerar com respiro */
-  .generate-wrap {
-    margin-top: 12px;
-    margin-bottom: 4px;
-  }
-
-  /* ============ RESULT ============ */
+  /* RESULT & NOTES */
   .result { display: none; margin-top: 10px; }
   .result.visible { display: block; }
-  .result pre {
-    background: var(--surface-2); border: 1px solid var(--border);
-    border-radius: var(--radius); padding: 10px;
-    font-family: ui-monospace, 'SF Mono', Consolas, monospace;
-    font-size: 11px; line-height: 1.5; color: var(--text);
-    white-space: pre-wrap; word-break: break-word;
-    max-height: 260px; overflow-y: auto;
-  }
-
-  /* ============ NOTES ============ */
+  .result pre { background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius); padding: 10px; font-family: ui-monospace, 'SF Mono', Consolas, monospace; font-size: 11px; line-height: 1.5; color: var(--text); white-space: pre-wrap; word-break: break-word; max-height: 260px; overflow-y: auto; }
   .notes { margin-top: 8px; }
-  .notes-head {
-    display: flex; align-items: center; justify-content: space-between;
-    margin-bottom: 6px;
-  }
-  .notes-head .card-title { margin: 0; }
+  .notes-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
   .notes textarea { min-height: 80px; font-family: inherit; }
 
-  /* ============ BATCH ============ */
-  .progress {
-    margin-top: 10px; padding: 10px;
-    background: var(--surface-2); border-radius: var(--radius);
-    display: none;
-  }
+  /* BATCH */
+  .progress { margin-top: 10px; padding: 10px; background: var(--surface-2); border-radius: var(--radius); display: none; }
   .progress.visible { display: block; }
-  .progress-head {
-    display: flex; justify-content: space-between;
-    font-size: 11px; color: var(--text-muted); margin-bottom: 6px;
-  }
-  .progress-bar {
-    height: 4px; background: var(--border);
-    border-radius: 2px; overflow: hidden;
-  }
-  .progress-fill {
-    height: 100%; background: var(--primary);
-    width: 0; transition: width 200ms ease;
-  }
+  .progress-head { display: flex; justify-content: space-between; font-size: 11px; color: var(--text-muted); margin-bottom: 6px; }
+  .progress-bar { height: 4px; background: var(--border); border-radius: 2px; overflow: hidden; }
+  .progress-fill { height: 100%; background: var(--primary); width: 0; transition: width 200ms ease; }
   .batch-list { margin-top: 10px; max-height: 400px; overflow-y: auto; }
-  .batch-item {
-    padding: 10px; border-radius: var(--radius);
-    background: var(--surface-2); border-left: 3px solid var(--primary);
-    margin-bottom: 6px;
-  }
+  .batch-item { padding: 10px; border-radius: var(--radius); background: var(--surface-2); border-left: 3px solid var(--primary); margin-bottom: 6px; }
   .batch-item.error { border-left-color: var(--danger); }
   .batch-item-title { font-weight: 600; font-size: 12px; margin-bottom: 4px; }
-  .batch-item-text {
-    font-size: 11px; color: var(--text-muted);
-    white-space: pre-wrap; max-height: 60px; overflow-y: auto;
-    font-family: ui-monospace, monospace;
-  }
+  .batch-item-text { font-size: 11px; color: var(--text-muted); white-space: pre-wrap; max-height: 60px; overflow-y: auto; font-family: ui-monospace, monospace; }
   .batch-item-actions { display: flex; gap: 4px; margin-top: 6px; }
   .batch-item-actions .btn { padding: 4px 8px; font-size: 10px; flex: 1; min-width: auto; }
 
-  /* ============ TOAST ============ */
-  .toast {
-    position: fixed; bottom: 16px; left: 50%;
-    transform: translateX(-50%) translateY(80px);
-    background: var(--text); color: var(--bg);
-    padding: 8px 16px; border-radius: 20px;
-    font-size: 12px; font-weight: 600;
-    box-shadow: 0 8px 24px rgba(0,0,0,.2);
-    opacity: 0; pointer-events: none;
-    transition: transform 200ms ease, opacity 200ms ease;
-    z-index: 9999;
-  }
+  /* TOAST & LOADING */
+  .toast { position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%) translateY(80px); background: var(--text); color: var(--bg); padding: 8px 16px; border-radius: 20px; font-size: 12px; font-weight: 600; box-shadow: 0 8px 24px rgba(0,0,0,.2); opacity: 0; pointer-events: none; transition: transform 200ms ease, opacity 200ms ease; z-index: 9999; }
   .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
   .toast.error { background: var(--danger); color: #fff; }
-
-  /* ============ LOADING ============ */
-  .spinner {
-    width: 12px; height: 12px; border-radius: 50%;
-    border: 2px solid currentColor; border-top-color: transparent;
-    animation: spin .7s linear infinite; display: inline-block;
-  }
+  .spinner { width: 12px; height: 12px; border-radius: 50%; border: 2px solid currentColor; border-top-color: transparent; animation: spin .7s linear infinite; display: inline-block; }
   @keyframes spin { to { transform: rotate(360deg); } }
 
-  /* ============ CARD EXPORT ============ */
-  #cardPreview {
-    position: fixed; left: -9999px; top: 0; width: 560px;
-    background: linear-gradient(135deg, #1a1f2b 0%, #232a38 100%);
-    padding: 32px; border-radius: 18px;
-    font-family: -apple-system, 'Segoe UI', Roboto, sans-serif;
-    color: #fff;
-  }
+  /* CARD EXPORT */
+  #cardPreview { position: fixed; left: -9999px; top: 0; width: 560px; background: linear-gradient(135deg, #1a1f2b 0%, #232a38 100%); padding: 32px; border-radius: 18px; font-family: -apple-system, 'Segoe UI', Roboto, sans-serif; color: #fff; }
   #cardPreview .c-head { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
   #cardPreview .c-logo { font-size: 1.6rem; }
   #cardPreview .c-brand { font-size: 1rem; font-weight: 700; color: #22c55e; letter-spacing: .02em; }
@@ -333,28 +189,11 @@
   #cardPreview .c-title { font-size: 1.25rem; font-weight: 700; line-height: 1.3; margin-bottom: 18px; }
   #cardPreview .c-old { font-size: .9rem; color: #94a3b8; text-decoration: line-through; }
   #cardPreview .c-new { font-size: 2rem; font-weight: 800; color: #22c55e; }
-  #cardPreview .c-pix {
-    display: inline-block; background: #0ea5a4; color: #001a1a;
-    padding: 3px 9px; border-radius: 16px; font-size: .8rem;
-    font-weight: 700; margin-left: 8px; vertical-align: middle;
-  }
-  #cardPreview .c-coupon {
-    background: #ea580c; color: #1a0a00; padding: 6px 12px;
-    border-radius: 8px; font-weight: 700; display: inline-block;
-    margin-bottom: 14px; font-size: .9rem;
-  }
-  #cardPreview .c-coupon code {
-    background: rgba(0,0,0,.25); padding: 1px 6px;
-    border-radius: 4px; font-family: monospace; letter-spacing: .5px;
-  }
-  #cardPreview .c-cta {
-    background: #22c55e; color: #06210f; padding: 12px;
-    border-radius: 10px; text-align: center; font-weight: 700;
-    font-size: 1rem; margin-top: 14px;
-  }
-  #cardPreview .c-foot {
-    text-align: center; font-size: .75rem; color: #64748b; margin-top: 14px;
-  }
+  #cardPreview .c-pix { display: inline-block; background: #0ea5a4; color: #001a1a; padding: 3px 9px; border-radius: 16px; font-size: .8rem; font-weight: 700; margin-left: 8px; vertical-align: middle; }
+  #cardPreview .c-coupon { background: #ea580c; color: #1a0a00; padding: 6px 12px; border-radius: 8px; font-weight: 700; display: inline-block; margin-bottom: 14px; font-size: .9rem; }
+  #cardPreview .c-coupon code { background: rgba(0,0,0,.25); padding: 1px 6px; border-radius: 4px; font-family: monospace; letter-spacing: .5px; }
+  #cardPreview .c-cta { background: #22c55e; color: #06210f; padding: 12px; border-radius: 10px; text-align: center; font-weight: 700; font-size: 1rem; margin-top: 14px; }
+  #cardPreview .c-foot { text-align: center; font-size: .75rem; color: #64748b; margin-top: 14px; }
 
   .hidden { display: none !important; }
 </style>
@@ -362,7 +201,6 @@
 <body data-theme="light">
 
 <div class="wrap">
-  <!-- HEADER -->
   <header class="topbar">
     <div class="brand">
       <div class="brand-mark">🐦</div>
@@ -371,31 +209,26 @@
         <p>Gerador de ofertas para afiliados</p>
       </div>
     </div>
-    <button class="icon-btn" onclick="toggleTheme()" title="Alternar tema" aria-label="Alternar tema">
-      <svg id="themeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
-      </svg>
+    <button class="icon-btn" onclick="toggleTheme()" title="Alternar tema">
+      <svg id="themeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
     </button>
   </header>
 
-  <!-- TABS -->
   <div class="tabs" role="tablist">
     <button class="tab active" onclick="mudarTab('unico', this)" role="tab">Oferta única</button>
     <button class="tab" onclick="mudarTab('lote', this)" role="tab">Lote</button>
   </div>
 
-  <!-- ========== MODO ÚNICO ========== -->
   <div id="tabUnico" class="app-grid">
-    <!-- COLUNA ESQUERDA: FORM -->
     <div class="col-form">
-
       <!-- Card: Link -->
       <div class="card">
         <div class="card-header">
           <span class="card-title">Link do afiliado</span>
           <span id="storeBadge" class="badge hidden"></span>
         </div>
-        <div class="input-btn-group">
+        <!-- FIX: Campo link alinhado -->
+        <div class="link-group">
           <input type="url" id="link" placeholder="https://..." oninput="detectarLoja()">
           <button class="icon-btn" onclick="colarLink()" title="Colar">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/></svg>
@@ -404,7 +237,7 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
           </button>
         </div>
-        <p class="hint">O botão <strong>🔍</strong> tenta puxar título e preço automaticamente.</p>
+        <span class="hint">O botão <strong>🔍</strong> tenta puxar título e preço automaticamente.</span>
       </div>
 
       <!-- Card: Produto -->
@@ -447,16 +280,16 @@
             <input type="number" id="precoAntigo" placeholder="499.00" step="0.01">
           </div>
         </div>
-        <div class="field">
-          <label class="switch-row" for="pixCheckbox">
-            <span>
-              <span class="switch-label">Preço no Pix</span>
-              <small>Adiciona a marcação 💠 no anúncio</small>
-            </span>
-            <span class="switch">
-              <input type="checkbox" id="pixCheckbox" onchange="togglePix()">
-              <span class="switch-track"></span>
-            </span>
+        
+        <!-- FIX: Switch Pix (sem <label> quebrando) -->
+        <div class="switch-row" onclick="document.getElementById('pixCheckbox').click()">
+          <div class="switch-text">
+            <span class="switch-label">Preço no Pix</span>
+            <small>Adiciona a marcação 💠 no anúncio</small>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="pixCheckbox" onchange="togglePix()">
+            <span class="switch-track"></span>
           </label>
         </div>
       </div>
@@ -476,7 +309,6 @@
         </div>
       </div>
 
-      <!-- FIX: Respiro no botão Gerar -->
       <div class="generate-wrap">
         <button class="btn btn-primary btn-block" onclick="gerarAnuncio()">
           Gerar anúncio
@@ -485,30 +317,23 @@
       </div>
     </div>
 
-    <!-- COLUNA DIREITA: PREVIEW -->
     <div class="col-preview">
       <div class="card">
-        <div class="card-header">
-          <span class="card-title">Prévia</span>
-        </div>
+        <div class="card-header"><span class="card-title">Prévia</span></div>
         <div id="resultArea" class="result">
           <pre id="resultBox"></pre>
           <div class="actions">
             <button class="btn btn-secondary" onclick="copiarTexto()">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>
-              Copiar
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg> Copiar
             </button>
             <button class="btn btn-whatsapp" onclick="enviarWhatsApp()">
-              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12.031 2C6.505 2 2 6.478 2 11.979c0 1.76.458 3.454 1.32 4.955L2 22l5.226-1.357a9.93 9.93 0 004.805 1.236h.004c5.523 0 10.027-4.478 10.027-9.979C22.062 6.478 17.558 2 12.031 2zm5.835 14.195c-.244.686-1.42 1.32-1.96 1.378-.54.058-1.054.267-3.556-.84-2.502-1.107-4.058-3.686-4.182-3.855-.124-.17-.99-1.32-.99-2.518 0-1.198.63-1.788.85-2.032.222-.244.48-.305.642-.305.16 0 .32.003.46.01.144.006.338-.055.527.402.19.456.65 1.59.708 1.708.058.118.096.256.018.41-.08.156-.156.252-.31.43-.15.18-.32.4-.458.528-.15.14-.3.294-.13.59.17.29.75 1.24 1.61 2.007.11.098.21.18.317.257.96.698 1.328.79 1.57.884.244.094.386.084.53-.056.14-.14.618-.72.783-.966.164-.244.328-.204.55-.12.224.084 1.41.666 1.65.786.24.12.4.18.46.28.06.1.06.586-.184 1.272z"/></svg>
-              WhatsApp
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12.031 2C6.505 2 2 6.478 2 11.979c0 1.76.458 3.454 1.32 4.955L2 22l5.226-1.357a9.93 9.93 0 004.805 1.236h.004c5.523 0 10.027-4.478 10.027-9.979C22.062 6.478 17.558 2 12.031 2zm5.835 14.195c-.244.686-1.42 1.32-1.96 1.378-.54.058-1.054.267-3.556-.84-2.502-1.107-4.058-3.686-4.182-3.855-.124-.17-.99-1.32-.99-2.518 0-1.198.63-1.788.85-2.032.222-.244.48-.305.642-.305.16 0 .32.003.46.01.144.006.338-.055.527.402.19.456.65 1.59.708 1.708.058.118.096.256.018.41-.08.156-.156.252-.31.43-.15.18-.32.4-.458.528-.15.14-.3.294-.13.59.17.29.75 1.24 1.61 2.007.11.098.21.18.317.257.96.698 1.328.79 1.57.884.244.094.386.084.53-.056.14-.14.618-.72.783-.966.164-.244.328-.204.55-.12.224.084 1.41.666 1.65.786.24.12.4.18.46.28.06.1.06.586-.184 1.272z"/></svg> WhatsApp
             </button>
             <button class="btn btn-ghost" onclick="exportarImagem()">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg>
-              Imagem
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg> Imagem
             </button>
             <button class="btn btn-ghost" onclick="limparTudo()">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/><path d="M3 21v-5h5"/></svg>
-              Novo
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/><path d="M3 21v-5h5"/></svg> Novo
             </button>
           </div>
         </div>
@@ -517,7 +342,6 @@
         </div>
       </div>
 
-      <!-- Notas -->
       <div class="card notes">
         <div class="notes-head">
           <span class="card-title">Bloco de anotações</span>
@@ -528,7 +352,6 @@
     </div>
   </div>
 
-  <!-- ========== MODO LOTE ========== -->
   <div id="tabLote" class="hidden">
     <div class="card">
       <div class="card-header"><span class="card-title">Links em lote</span></div>
@@ -554,7 +377,6 @@
   </div>
 </div>
 
-<!-- Card oculto para exportar como imagem -->
 <div id="cardPreview">
   <div class="c-head"><span class="c-logo">🐦</span><span class="c-brand">ACHADINHOS ML</span></div>
   <div class="c-comment" id="cardComment"></div>
@@ -572,7 +394,6 @@
 let textoGerado = "";
 let dadosAtuais = {};
 
-/* ---------- TEMA ---------- */
 function toggleTheme() {
   const cur = document.body.dataset.theme;
   const next = cur === 'dark' ? 'light' : 'dark';
@@ -587,7 +408,6 @@ function toggleTheme() {
   if (saved) { document.body.dataset.theme = saved; if (saved === 'dark') toggleTheme(); }
 })();
 
-/* ---------- UTILS ---------- */
 function mostrarToast(msg, isError = false) {
   const t = document.getElementById('toast');
   t.textContent = msg;
@@ -602,10 +422,8 @@ function mudarTab(tab, el) {
   document.getElementById('tabUnico').style.display = tab === 'unico' ? 'grid' : 'none';
   document.getElementById('tabLote').classList.toggle('hidden', tab !== 'lote');
 }
-
 function togglePix() { /* CSS cuida do visual */ }
 
-/* ---------- DETECTAR LOJA ---------- */
 function detectarLoja(link = null) {
   const url = (link || document.getElementById('link').value || '').toLowerCase().trim();
   const badge = document.getElementById('storeBadge');
@@ -624,7 +442,6 @@ function detectarLoja(link = null) {
   return loja;
 }
 
-/* ---------- AÇÕES ---------- */
 async function colarLink() {
   try {
     const texto = await navigator.clipboard.readText();
@@ -639,7 +456,6 @@ function usarTemplate(texto) {
   mostrarToast('Template aplicado!');
 }
 
-/* ---------- BUSCAR DADOS ---------- */
 async function buscarDadosLink() {
   const link = document.getElementById('link').value.trim();
   if (!link) return mostrarToast('Cole um link primeiro.', true);
@@ -650,17 +466,12 @@ async function buscarDadosLink() {
     const html = await (await fetch(proxyUrl)).text();
     const doc = new DOMParser().parseFromString(html, 'text/html');
 
-    let titulo = doc.querySelector('meta[property="og:title"]')?.getAttribute('content')
-              || doc.querySelector('title')?.textContent || '';
+    let titulo = doc.querySelector('meta[property="og:title"]')?.getAttribute('content') || doc.querySelector('title')?.textContent || '';
     if (titulo) {
       titulo = titulo
-        .replace(/\s*\|\s*Mercado Livre.*$/i, '')
-        .replace(/\s*-\s*Mercado Livre.*$/i, '')
-        .replace(/^Mercado Livre\s*[-|]\s*/i, '')
-        .replace(/\s*\|\s*Shopee.*$/i, '')
-        .replace(/\s*-\s*Shopee.*$/i, '')
-        .replace(/\s*\|\s*Amazon.*$/i, '')
-        .replace(/\s*-\s*Amazon.*$/i, '')
+        .replace(/\s*\|\s*Mercado Livre.*$/i, '').replace(/\s*-\s*Mercado Livre.*$/i, '').replace(/^Mercado Livre\s*[-|]\s*/i, '')
+        .replace(/\s*\|\s*Shopee.*$/i, '').replace(/\s*-\s*Shopee.*$/i, '')
+        .replace(/\s*\|\s*Amazon.*$/i, '').replace(/\s*-\s*Amazon.*$/i, '')
         .trim();
       document.getElementById('titulo').value = titulo;
     }
@@ -687,7 +498,6 @@ async function buscarDadosLink() {
   }
 }
 
-/* ---------- GERAR ---------- */
 function gerarAnuncio() {
   const link = document.getElementById('link').value.trim();
   const titulo = document.getElementById('titulo').value.trim();
@@ -763,7 +573,6 @@ function enviarWhatsApp() {
   window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(textoGerado)}`, '_blank');
 }
 
-/* ---------- EXPORTAR IMAGEM ---------- */
 async function exportarImagem() {
   if (!textoGerado) return mostrarToast('Gere o anúncio primeiro!', true);
   const d = dadosAtuais;
@@ -805,7 +614,6 @@ async function exportarImagem() {
   } catch { mostrarToast('Erro ao gerar imagem.', true); }
 }
 
-/* ---------- LOTE ---------- */
 async function processarLote() {
   const linksTexto = document.getElementById('linksLote').value.trim();
   const comentarioPadrao = document.getElementById('comentarioLote').value.trim();
@@ -888,7 +696,6 @@ async function processarLote() {
 function copiarTextoItem(t) { navigator.clipboard.writeText(t).then(() => mostrarToast('Copiado!')); }
 function enviarWhatsItem(t) { window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(t)}`, '_blank'); }
 
-/* ---------- ENTER NAVEGA ---------- */
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Enter' && e.target.tagName === 'INPUT' && !e.shiftKey) {
     e.preventDefault();
