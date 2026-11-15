@@ -1,710 +1,876 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" data-theme="dark">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Gerador de Ofertas — Curió Promos</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<style>
-  :root {
-    --bg: #f6f7f9; --surface: #ffffff; --surface-2: #f1f3f6;
-    --border: #e3e6ea; --border-strong: #d0d5db;
-    --text: #1a1d21; --text-muted: #5f6772; --text-subtle: #8b939e;
-    --primary: #16a34a; --primary-hover: #15803d; --primary-fg: #ffffff;
-    --danger: #dc2626; --whatsapp: #25D366; --pix: #0ea5a4;
-    --radius: 8px; --radius-lg: 12px;
-    --shadow-sm: 0 1px 2px rgba(15,23,42,.06);
-    --transition: 120ms ease;
-  }
-  [data-theme="dark"] {
-    --bg: #0f1115; --surface: #161a20; --surface-2: #1e232b;
-    --border: #262c36; --border-strong: #333b47;
-    --text: #e8ecf1; --text-muted: #9aa3b0; --text-subtle: #6b7482;
-    --primary: #22c55e; --primary-hover: #16a34a; --primary-fg: #06210f;
-    --shadow-sm: 0 1px 2px rgba(0,0,0,.4);
-  }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Curió Promos | Gerador de Ofertas</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        /* ================= TOKENS ================= */
+        :root {
+            /* Tema Dark (Padrão) */
+            --bg: #0f1115;
+            --surface: #161a20;
+            --surface-hover: #1e232b;
+            --border: #2a313c;
+            --border-focus: #4ade80;
+            --text: #f1f5f9;
+            --text-muted: #94a3b8;
+            --primary: #22c55e;
+            --primary-hover: #16a34a;
+            --primary-text: #052e16;
+            --danger: #ef4444;
+            --whatsapp: #25D366;
+            --pix: #0ea5a4;
+            --glass: rgba(22, 26, 32, 0.7);
+            --radius-sm: 6px;
+            --radius: 12px;
+            --radius-lg: 20px;
+            --shadow: 0 10px 30px -10px rgba(0,0,0,0.5);
+            --transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
 
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  html, body { height: 100%; }
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    background: var(--bg); color: var(--text);
-    font-size: 13px; line-height: 1.4; padding: 12px;
-    -webkit-font-smoothing: antialiased;
-  }
+        [data-theme="light"] {
+            --bg: #f1f5f9;
+            --surface: #ffffff;
+            --surface-hover: #f8fafc;
+            --border: #e2e8f0;
+            --text: #0f172a;
+            --text-muted: #64748b;
+            --primary: #16a34a;
+            --primary-hover: #15803d;
+            --primary-text: #ffffff;
+            --glass: rgba(255, 255, 255, 0.8);
+            --shadow: 0 10px 30px -10px rgba(0,0,0,0.1);
+        }
 
-  .wrap { max-width: 1120px; margin: 0 auto; }
-  .app-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; }
-  @media (min-width: 900px) {
-    .app-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: start; }
-    .col-preview { position: sticky; top: 10px; }
-  }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
 
-  /* HEADER & TABS */
-  .topbar { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
-  .brand { display: flex; align-items: center; gap: 8px; }
-  .brand-mark { width: 28px; height: 28px; border-radius: 7px; background: var(--primary); color: var(--primary-fg); display: grid; place-items: center; font-weight: 700; font-size: 13px; }
-  .brand-text h1 { font-size: 14px; font-weight: 700; letter-spacing: -.01em; }
-  .brand-text p { font-size: 11px; color: var(--text-muted); }
-  .icon-btn { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: var(--radius); border: 1px solid var(--border); background: var(--surface); color: var(--text-muted); cursor: pointer; transition: var(--transition); }
-  .icon-btn:hover { background: var(--surface-2); color: var(--text); }
-  .icon-btn svg { width: 16px; height: 16px; }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.5;
+            min-height: 100vh;
+            font-size: 14px;
+            -webkit-font-smoothing: antialiased;
+        }
 
-  .tabs { display: inline-flex; gap: 2px; padding: 2px; background: var(--surface-2); border-radius: var(--radius); margin-bottom: 10px; }
-  .tab { padding: 6px 12px; border-radius: 6px; border: none; background: transparent; color: var(--text-muted); font-size: 12px; font-weight: 600; cursor: pointer; transition: var(--transition); }
-  .tab.active { background: var(--surface); color: var(--text); box-shadow: var(--shadow-sm); }
-  .tab:hover:not(.active) { color: var(--text); }
+        /* ================= LAYOUT ================= */
+        .app-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            max-width: 1300px;
+            margin: 0 auto;
+            min-height: 100vh;
+        }
 
-  /* CARDS & FORM */
-  .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 12px; box-shadow: var(--shadow-sm); }
-  .card + .card { margin-top: 8px; }
-  .card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; gap: 8px; }
-  .card-title { font-size: 11px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--text-subtle); }
+        @media (min-width: 1000px) {
+            .app-container {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
 
-  .field { margin-bottom: 8px; }
-  .field:last-child { margin-bottom: 0; }
-  .field label { display: block; font-size: 11px; font-weight: 600; color: var(--text-muted); margin-bottom: 4px; }
-  
-  .field input, .field textarea {
-    width: 100%; padding: 8px 10px;
-    background: var(--surface-2); border: 1px solid var(--border);
-    border-radius: var(--radius); color: var(--text);
-    font-size: 13px; font-family: inherit; outline: none;
-    transition: var(--transition);
-  }
-  .field input:hover, .field textarea:hover { border-color: var(--border-strong); }
-  .field input:focus, .field textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary) 20%, transparent); }
-  .field textarea { resize: vertical; min-height: 48px; }
-  .field .hint { font-size: 10px; color: var(--text-subtle); margin-top: 4px; display: block; }
+        /* ================= HEADER & CONTROLS ================= */
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--border);
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            grid-column: 1 / -1;
+        }
 
-  .row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px; }
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            letter-spacing: -0.02em;
+        }
 
-  /* FIX: Campo de link e botões */
-  .link-group {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto auto;
-    gap: 4px;
-  }
-  .link-group input { width: 100%; }
+        .brand-icon {
+            width: 32px;
+            height: 32px;
+            background: var(--primary);
+            color: var(--primary-text);
+            border-radius: 8px;
+            display: grid;
+            place-items: center;
+            font-size: 18px;
+        }
 
-  /* STORE BADGE */
-  .badge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 6px; border-radius: 12px; font-size: 10px; font-weight: 600; line-height: 1.4; }
-  .badge.shopee { background: #fee2e2; color: #b91c1c; }
-  .badge.ml { background: #fef3c7; color: #92400e; }
-  .badge.amazon { background: #ffedd5; color: #9a3412; }
-  [data-theme="dark"] .badge.shopee { background: #451a1a; color: #fca5a5; }
-  [data-theme="dark"] .badge.ml { background: #422006; color: #fcd34d; }
-  [data-theme="dark"] .badge.amazon { background: #431407; color: #fdba74; }
+        .header-actions { display: flex; gap: 8px; align-items: center; }
 
-  /* CHIPS */
-  .chips { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
-  .chip { padding: 3px 8px; border-radius: 12px; background: var(--surface-2); border: 1px solid var(--border); color: var(--text-muted); font-size: 11px; cursor: pointer; transition: var(--transition); }
-  .chip:hover { border-color: var(--primary); color: var(--primary); }
+        /* ================= BUTTONS ================= */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 10px 16px;
+            border-radius: var(--radius-sm);
+            font-weight: 600;
+            font-size: 13px;
+            border: 1px solid transparent;
+            cursor: pointer;
+            transition: var(--transition);
+            white-space: nowrap;
+            text-decoration: none;
+        }
 
-  /* FIX: Switch Pix */
-  .switch-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 8px 10px;
-    background: var(--surface-2);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    cursor: pointer;
-    user-select: none;
-    transition: var(--transition);
-    margin-top: 4px;
-  }
-  .switch-row:hover { border-color: var(--border-strong); }
-  .switch-text { display: flex; flex-direction: column; }
-  .switch-label { font-size: 12px; font-weight: 600; }
-  .switch-text small { color: var(--text-subtle); font-size: 10px; }
-  
-  .switch {
-    position: relative;
-    width: 32px;
-    height: 18px;
-    flex-shrink: 0;
-  }
-  .switch input { position: absolute; opacity: 0; inset: 0; cursor: pointer; margin: 0; }
-  .switch-track { position: absolute; inset: 0; background: var(--border-strong); border-radius: 18px; transition: var(--transition); }
-  .switch-track::after { content: ''; position: absolute; top: 2px; left: 2px; width: 14px; height: 14px; border-radius: 50%; background: #fff; transition: var(--transition); box-shadow: 0 1px 2px rgba(0,0,0,.2); }
-  .switch input:checked + .switch-track { background: var(--pix); }
-  .switch input:checked + .switch-track::after { transform: translateX(14px); }
+        .btn:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
-  /* BUTTONS */
-  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 8px 12px; border-radius: var(--radius); border: 1px solid transparent; font-size: 12px; font-weight: 600; font-family: inherit; cursor: pointer; transition: var(--transition); white-space: nowrap; }
-  .btn:focus-visible { outline: none; box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary) 30%, transparent); }
-  .btn-primary { background: var(--primary); color: var(--primary-fg); }
-  .btn-primary:hover { background: var(--primary-hover); }
-  .btn-secondary { background: var(--surface-2); color: var(--text); border-color: var(--border); }
-  .btn-secondary:hover { border-color: var(--border-strong); }
-  .btn-whatsapp { background: var(--whatsapp); color: #fff; }
-  .btn-whatsapp:hover { filter: brightness(.95); }
-  .btn-ghost { background: transparent; color: var(--text-muted); border-color: var(--border); }
-  .btn-ghost:hover { color: var(--text); border-color: var(--border-strong); }
-  .btn-block { width: 100%; }
-  .btn svg { width: 14px; height: 14px; }
+        .btn-primary { background: var(--primary); color: var(--primary-text); }
+        .btn-primary:hover:not(:disabled) { background: var(--primary-hover); }
 
-  /* FIX: Respiro no botão Gerar */
-  .generate-wrap { margin-top: 12px; }
-  .actions { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
-  .actions .btn { flex: 1; min-width: 100px; }
+        .btn-secondary { background: var(--surface-hover); color: var(--text); border-color: var(--border); }
+        .btn-secondary:hover { border-color: var(--text-muted); }
 
-  /* RESULT & NOTES */
-  .result { display: none; margin-top: 10px; }
-  .result.visible { display: block; }
-  .result pre { background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius); padding: 10px; font-family: ui-monospace, 'SF Mono', Consolas, monospace; font-size: 11px; line-height: 1.5; color: var(--text); white-space: pre-wrap; word-break: break-word; max-height: 260px; overflow-y: auto; }
-  .notes { margin-top: 8px; }
-  .notes-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
-  .notes textarea { min-height: 80px; font-family: inherit; }
+        .btn-whatsapp { background: var(--whatsapp); color: #fff; }
+        .btn-whatsapp:hover { filter: brightness(1.1); }
 
-  /* BATCH */
-  .progress { margin-top: 10px; padding: 10px; background: var(--surface-2); border-radius: var(--radius); display: none; }
-  .progress.visible { display: block; }
-  .progress-head { display: flex; justify-content: space-between; font-size: 11px; color: var(--text-muted); margin-bottom: 6px; }
-  .progress-bar { height: 4px; background: var(--border); border-radius: 2px; overflow: hidden; }
-  .progress-fill { height: 100%; background: var(--primary); width: 0; transition: width 200ms ease; }
-  .batch-list { margin-top: 10px; max-height: 400px; overflow-y: auto; }
-  .batch-item { padding: 10px; border-radius: var(--radius); background: var(--surface-2); border-left: 3px solid var(--primary); margin-bottom: 6px; }
-  .batch-item.error { border-left-color: var(--danger); }
-  .batch-item-title { font-weight: 600; font-size: 12px; margin-bottom: 4px; }
-  .batch-item-text { font-size: 11px; color: var(--text-muted); white-space: pre-wrap; max-height: 60px; overflow-y: auto; font-family: ui-monospace, monospace; }
-  .batch-item-actions { display: flex; gap: 4px; margin-top: 6px; }
-  .batch-item-actions .btn { padding: 4px 8px; font-size: 10px; flex: 1; min-width: auto; }
+        .btn-ghost { background: transparent; color: var(--text-muted); }
+        .btn-ghost:hover { background: var(--surface-hover); color: var(--text); }
 
-  /* TOAST & LOADING */
-  .toast { position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%) translateY(80px); background: var(--text); color: var(--bg); padding: 8px 16px; border-radius: 20px; font-size: 12px; font-weight: 600; box-shadow: 0 8px 24px rgba(0,0,0,.2); opacity: 0; pointer-events: none; transition: transform 200ms ease, opacity 200ms ease; z-index: 9999; }
-  .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
-  .toast.error { background: var(--danger); color: #fff; }
-  .spinner { width: 12px; height: 12px; border-radius: 50%; border: 2px solid currentColor; border-top-color: transparent; animation: spin .7s linear infinite; display: inline-block; }
-  @keyframes spin { to { transform: rotate(360deg); } }
+        .btn-icon {
+            padding: 8px;
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            display: grid;
+            place-items: center;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .btn-icon:hover { color: var(--text); border-color: var(--text-muted); }
+        .btn-icon svg { width: 18px; height: 18px; }
 
-  /* CARD EXPORT */
-  #cardPreview { position: fixed; left: -9999px; top: 0; width: 560px; background: linear-gradient(135deg, #1a1f2b 0%, #232a38 100%); padding: 32px; border-radius: 18px; font-family: -apple-system, 'Segoe UI', Roboto, sans-serif; color: #fff; }
-  #cardPreview .c-head { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
-  #cardPreview .c-logo { font-size: 1.6rem; }
-  #cardPreview .c-brand { font-size: 1rem; font-weight: 700; color: #22c55e; letter-spacing: .02em; }
-  #cardPreview .c-comment { font-size: 1rem; font-weight: 600; margin-bottom: 14px; }
-  #cardPreview .c-title { font-size: 1.25rem; font-weight: 700; line-height: 1.3; margin-bottom: 18px; }
-  #cardPreview .c-old { font-size: .9rem; color: #94a3b8; text-decoration: line-through; }
-  #cardPreview .c-new { font-size: 2rem; font-weight: 800; color: #22c55e; }
-  #cardPreview .c-pix { display: inline-block; background: #0ea5a4; color: #001a1a; padding: 3px 9px; border-radius: 16px; font-size: .8rem; font-weight: 700; margin-left: 8px; vertical-align: middle; }
-  #cardPreview .c-coupon { background: #ea580c; color: #1a0a00; padding: 6px 12px; border-radius: 8px; font-weight: 700; display: inline-block; margin-bottom: 14px; font-size: .9rem; }
-  #cardPreview .c-coupon code { background: rgba(0,0,0,.25); padding: 1px 6px; border-radius: 4px; font-family: monospace; letter-spacing: .5px; }
-  #cardPreview .c-cta { background: #22c55e; color: #06210f; padding: 12px; border-radius: 10px; text-align: center; font-weight: 700; font-size: 1rem; margin-top: 14px; }
-  #cardPreview .c-foot { text-align: center; font-size: .75rem; color: #64748b; margin-top: 14px; }
+        /* ================= COLUMNS ================= */
+        .col-form, .col-preview {
+            padding: 24px;
+            overflow-y: auto;
+        }
 
-  .hidden { display: none !important; }
-</style>
-</head>
-<body data-theme="light">
+        .col-preview {
+            background: var(--bg);
+            border-left: 1px solid var(--border);
+        }
 
-<div class="wrap">
-  <header class="topbar">
-    <div class="brand">
-      <div class="brand-mark">🐦</div>
-      <div class="brand-text">
-        <h1>Curió Promos</h1>
-        <p>Gerador de ofertas para afiliados</p>
-      </div>
-    </div>
-    <button class="icon-btn" onclick="toggleTheme()" title="Alternar tema">
-      <svg id="themeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-    </button>
-  </header>
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 20px;
+            margin-bottom: 16px;
+            transition: var(--transition);
+        }
 
-  <div class="tabs" role="tablist">
-    <button class="tab active" onclick="mudarTab('unico', this)" role="tab">Oferta única</button>
-    <button class="tab" onclick="mudarTab('lote', this)" role="tab">Lote</button>
-  </div>
+        .card:hover { border-color: var(--border); box-shadow: var(--shadow); }
 
-  <div id="tabUnico" class="app-grid">
-    <div class="col-form">
-      <!-- Card: Link -->
-      <div class="card">
-        <div class="card-header">
-          <span class="card-title">Link do afiliado</span>
-          <span id="storeBadge" class="badge hidden"></span>
-        </div>
-        <!-- FIX: Campo link alinhado -->
-        <div class="link-group">
-          <input type="url" id="link" placeholder="https://..." oninput="detectarLoja()">
-          <button class="icon-btn" onclick="colarLink()" title="Colar">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/></svg>
-          </button>
-          <button class="icon-btn" onclick="buscarDadosLink()" title="Buscar dados do produto">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
-          </button>
-        </div>
-        <span class="hint">O botão <strong>🔍</strong> tenta puxar título e preço automaticamente.</span>
-      </div>
+        .card-title {
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+            margin-bottom: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
 
-      <!-- Card: Produto -->
-      <div class="card">
-        <div class="card-header"><span class="card-title">Produto</span></div>
-        <div class="field">
-          <label for="titulo">Título</label>
-          <input type="text" id="titulo" placeholder="Ex: Echo Dot (5ª geração)">
-        </div>
-        <div class="field">
-          <label for="comentario">Comentário pessoal <span class="hint" style="display:inline">(1ª linha)</span></label>
-          <textarea id="comentario" rows="1" placeholder="Ex: ACHADINHO DO DIA! Corre que é por tempo limitado."></textarea>
-          <div class="chips">
-            <button class="chip" onclick="usarTemplate('🔥 ACHADINHO DO DIA! Corre que é por tempo limitado!')">🔥 Achadinho</button>
-            <button class="chip" onclick="usarTemplate('🚨 PREÇO BAIXOU! Aproveita agora!')">🚨 Baixou</button>
-            <button class="chip" onclick="usarTemplate('⚡ PROMOÇÃO RELÂMPAGO! Só hoje!')">⚡ Relâmpago</button>
-            <button class="chip" onclick="usarTemplate('🎁 ACHADO NO MERCADO LIVRE!')">🎁 ML</button>
-            <button class="chip" onclick="usarTemplate('💸 TÁ DE GRAÇA! Olha esse preço!')">💸 Barato</button>
-            <button class="chip" onclick="usarTemplate('👀 OLHA ISSO! Que oportunidade!')">👀 Olha</button>
-            <button class="chip" onclick="usarTemplate('🤑 CORRE QUE TÁ ACABANDO!')">🤑 Corre</button>
-            <button class="chip" onclick="usarTemplate('📉 MENOR PREÇO DOS ÚLTIMOS DIAS!')">📉 Menor</button>
-            <button class="chip" onclick="usarTemplate('🏃‍♂️ ÚLTIMAS UNIDADES! Garanta a sua!')">🏃‍♂️ Últimas</button>
-            <button class="chip" onclick="usarTemplate('💎 OFERTA IMPERDÍVEL!')">💎 Imperdível</button>
-            <button class="chip" onclick="usarTemplate('🎯 OPORTUNIDADE ÚNICA!')">🎯 Única</button>
-            <button class="chip" onclick="usarTemplate('⏰ É SÓ HOJE! Não perca!')">⏰ Hoje</button>
-          </div>
-        </div>
-      </div>
+        /* ================= FORMS ================= */
+        .field { margin-bottom: 16px; }
+        .field:last-child { margin-bottom: 0; }
 
-      <!-- Card: Preço -->
-      <div class="card">
-        <div class="card-header"><span class="card-title">Preço</span></div>
-        <div class="row">
-          <div class="field">
-            <label for="precoAtual">Atual (R$)</label>
-            <input type="number" id="precoAtual" placeholder="299.00" step="0.01">
-          </div>
-          <div class="field">
-            <label for="precoAntigo">Antigo (R$)</label>
-            <input type="number" id="precoAntigo" placeholder="499.00" step="0.01">
-          </div>
-        </div>
+        .field label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+        }
+
+        .input-group {
+            display: flex;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            transition: var(--transition);
+            overflow: hidden;
+        }
+        .input-group:focus-within { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1); }
+
+        .input-group input, .input-group textarea {
+            width: 100%;
+            background: transparent;
+            border: none;
+            padding: 12px;
+            color: var(--text);
+            font-size: 14px;
+            outline: none;
+            font-family: inherit;
+        }
+
+        .input-group textarea { resize: vertical; min-height: 80px; }
         
-        <!-- FIX: Switch Pix (sem <label> quebrando) -->
-        <div class="switch-row" onclick="document.getElementById('pixCheckbox').click()">
-          <div class="switch-text">
-            <span class="switch-label">Preço no Pix</span>
-            <small>Adiciona a marcação 💠 no anúncio</small>
-          </div>
-          <label class="switch">
-            <input type="checkbox" id="pixCheckbox" onchange="togglePix()">
-            <span class="switch-track"></span>
-          </label>
-        </div>
-      </div>
+        .input-group .action-btn {
+            background: transparent;
+            border: none;
+            padding: 0 12px;
+            color: var(--text-muted);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            transition: var(--transition);
+            border-left: 1px solid var(--border);
+        }
+        .input-group .action-btn:hover { color: var(--primary); background: var(--surface-hover); }
 
-      <!-- Card: Cupom -->
-      <div class="card">
-        <div class="card-header"><span class="card-title">Cupom (opcional)</span></div>
-        <div class="row">
-          <div class="field">
-            <label for="cupom">Código</label>
-            <input type="text" id="cupom" placeholder="PROMO10">
-          </div>
-          <div class="field">
-            <label for="precoCupom">Preço final (R$)</label>
-            <input type="number" id="precoCupom" placeholder="99.99" step="0.01">
-          </div>
-        </div>
-      </div>
+        .row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
 
-      <div class="generate-wrap">
-        <button class="btn btn-primary btn-block" onclick="gerarAnuncio()">
-          Gerar anúncio
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-        </button>
-      </div>
+        /* ================= CHIPS / TAGS ================= */
+        .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+        .chip {
+            padding: 6px 12px;
+            border-radius: 20px;
+            background: var(--surface-hover);
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .chip:hover { border-color: var(--primary); color: var(--primary); background: rgba(34, 197, 94, 0.05); }
+        
+        .badge {
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-weight: 700;
+        }
+        .badge-ml { background: #fef3c7; color: #92400e; }
+        .badge-shopee { background: #fee2e2; color: #b91c1c; }
+        .badge-amazon { background: #ffedd5; color: #9a3412; }
+
+        /* ================= LIVE PREVIEW AREA ================= */
+        .preview-sticky { position: sticky; top: 24px; }
+
+        .preview-card {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            color: #fff;
+            box-shadow: 0 20px 40px -10px rgba(0,0,0,0.5);
+            margin-bottom: 24px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .preview-image {
+            width: 100%;
+            height: 240px;
+            background: #0f172a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .preview-image img { width: 100%; height: 100%; object-fit: contain; padding: 16px; }
+        .preview-image .placeholder { color: #475569; font-size: 40px; }
+
+        .preview-content { padding: 24px; }
+        .preview-comment { color: var(--primary); font-weight: 700; font-size: 14px; margin-bottom: 8px; }
+        .preview-title { font-size: 18px; font-weight: 700; line-height: 1.3; margin-bottom: 16px; color: #f8fafc; }
+        
+        .preview-prices { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+        .preview-old { color: #94a3b8; text-decoration: line-through; font-size: 14px; }
+        .preview-new { font-size: 28px; font-weight: 800; color: var(--primary); }
+        .preview-discount { background: #ef4444; color: #fff; padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: 700; }
+        
+        .preview-pix { display: inline-block; background: var(--pix); color: #001a1a; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 700; margin-top: 4px; }
+        .preview-cta { margin-top: 24px; background: rgba(255,255,255,0.1); border: 1px dashed rgba(255,255,255,0.3); text-align: center; padding: 12px; border-radius: 8px; font-weight: 600; color: #cbd5e1; font-size: 13px; }
+
+        /* ================= WHATSAPP TEXT BOX ================= */
+        .text-output {
+            background: var(--surface-hover);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 16px;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            font-size: 13px;
+            white-space: pre-wrap;
+            color: var(--text);
+            max-height: 300px;
+            overflow-y: auto;
+            margin-bottom: 16px;
+        }
+
+        /* ================= SWITCH ================= */
+        .switch-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+        }
+        .switch-label { font-size: 13px; font-weight: 500; }
+        .switch {
+            position: relative;
+            width: 40px;
+            height: 22px;
+            background: var(--border);
+            border-radius: 20px;
+            transition: var(--transition);
+            flex-shrink: 0;
+        }
+        .switch::after {
+            content: '';
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 16px;
+            height: 16px;
+            background: #fff;
+            border-radius: 50%;
+            transition: var(--transition);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        .switch.active { background: var(--primary); }
+        .switch.active::after { transform: translateX(18px); }
+
+        /* ================= TOAST ================= */
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: var(--surface);
+            color: var(--text);
+            padding: 12px 24px;
+            border-radius: var(--radius);
+            font-weight: 600;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+            opacity: 0;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+        .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+        .toast.error { border-color: var(--danger); color: var(--danger); }
+
+        /* ================= LOADING ================= */
+        .spinner { width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        
+        /* Esconder elementos */
+        .hidden { display: none !important; }
+        #cardExport { position: fixed; left: -9999px; top: 0; }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="brand">
+            <div class="brand-icon">🐦</div>
+            Curió Promos
+        </div>
+        <div class="header-actions">
+            <button class="btn-icon" onclick="toggleTheme()" title="Alternar Tema">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main App -->
+    <main class="app-container">
+        
+        <!-- Left: Form -->
+        <section class="col-form">
+            
+            <div class="card">
+                <div class="card-title">
+                    Link do Produto
+                    <span id="storeBadge" class="badge hidden">Loja</span>
+                </div>
+                <div class="input-group">
+                    <input type="url" id="inputLink" placeholder="Cole o link de afiliado aqui..." oninput="onLinkChange()">
+                    <button class="action-btn" onclick="colarLink()" title="Colar">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/></svg>
+                    </button>
+                    <button class="action-btn" id="btnFetch" onclick="fetchData()" title="Extrair dados automaticamente">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+                    </button>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">Informações do Produto</div>
+                <div class="field">
+                    <label>Título</label>
+                    <div class="input-group">
+                        <input type="text" id="inputTitulo" placeholder="Nome do produto" oninput="updatePreview()">
+                    </div>
+                </div>
+                <div class="field">
+                    <label>Comentário / Frase de Impacto</label>
+                    <div class="input-group">
+                        <textarea id="inputComentario" rows="2" placeholder="Ex: ACHADINHO DO DIA! Corre que é por tempo limitado." oninput="updatePreview()"></textarea>
+                    </div>
+                    <div class="chips" id="chipsContainer">
+                        <!-- Preenchido via JS -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">Preços e Desconto</div>
+                <div class="row">
+                    <div class="field">
+                        <label>Preço Atual (R$)</label>
+                        <div class="input-group">
+                            <input type="number" id="inputPrecoAtual" placeholder="0.00" step="0.01" oninput="updatePreview()">
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label>Preço Antigo (R$)</label>
+                        <div class="input-group">
+                            <input type="number" id="inputPrecoAntigo" placeholder="0.00" step="0.01" oninput="updatePreview()">
+                        </div>
+                    </div>
+                </div>
+                <div class="field">
+                    <div class="switch-container" onclick="togglePix()">
+                        <span class="switch-label">Preço no Pix 💠</span>
+                        <div class="switch" id="switchPix"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">Cupom de Desconto (Opcional)</div>
+                <div class="row">
+                    <div class="field">
+                        <label>Código do Cupom</label>
+                        <div class="input-group">
+                            <input type="text" id="inputCupom" placeholder="Ex: PROMO10" oninput="updatePreview()">
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label>Preço c/ Cupom (R$)</label>
+                        <div class="input-group">
+                            <input type="number" id="inputPrecoCupom" placeholder="0.00" step="0.01" oninput="updatePreview()">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card de Exportação -->
+            <div class="card hidden" id="exportCard">
+                <div class="card-title">Ações</div>
+                <button class="btn btn-primary btn-block" style="width:100%; margin-bottom:12px;" onclick="copyText()">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>
+                    Copiar Texto
+                </button>
+                <div class="row">
+                    <button class="btn btn-secondary" onclick="exportImage()">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg>
+                        Imagem
+                    </button>
+                    <button class="btn btn-whatsapp" onclick="sendWhatsApp()">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M12.031 2C6.505 2 2 6.478 2 11.979c0 1.76.458 3.454 1.32 4.955L2 22l5.226-1.357a9.93 9.93 0 004.805 1.236h.004c5.523 0 10.027-4.478 10.027-9.979C22.062 6.478 17.558 2 12.031 2z"/></svg>
+                        Enviar
+                    </button>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- Right: Preview -->
+        <section class="col-preview">
+            <div class="preview-sticky">
+                
+                <!-- O Card Visual -->
+                <div class="preview-card">
+                    <div class="preview-image" id="previewImageContainer">
+                        <div class="placeholder">🖼️</div>
+                    </div>
+                    <div class="preview-content">
+                        <div class="preview-comment" id="previewComment">Achadinho do dia!</div>
+                        <div class="preview-title" id="previewTitle">Título do Produto</div>
+                        <div class="preview-prices">
+                            <div class="preview-old hidden" id="previewOldPrice">R$ 0,00</div>
+                            <div class="preview-new" id="previewNewPrice">R$ 0,00</div>
+                            <div class="preview-discount hidden" id="previewDiscount">0% OFF</div>
+                        </div>
+                        <div id="previewPixContainer" class="hidden">
+                            <span class="preview-pix">💠 no Pix</span>
+                        </div>
+                        <div class="preview-cta">
+                            👉 Link na descrição / comentário
+                        </div>
+                    </div>
+                </div>
+
+                <!-- O Texto do WhatsApp -->
+                <div class="card">
+                    <div class="card-title">Texto do WhatsApp</div>
+                    <div class="text-output" id="outputText">Preencha os campos para gerar o texto...</div>
+                </div>
+                
+            </div>
+        </section>
+    </main>
+
+    <!-- Card Oculto para Exportação de Imagem -->
+    <div id="cardExport" style="width: 600px; background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); padding: 30px; border-radius: 20px; color: #fff; font-family: -apple-system, sans-serif;">
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px;">
+            <span style="font-size: 24px;">🐦</span>
+            <span style="font-size: 16px; font-weight: 700; color: #22c55e;">CURIÓ PROMOS</span>
+        </div>
+        <div id="exportComment" style="color: #22c55e; font-weight: 700; font-size: 16px; margin-bottom: 10px;"></div>
+        <div id="exportTitle" style="font-size: 22px; font-weight: 700; line-height: 1.3; margin-bottom: 20px;"></div>
+        
+        <div id="exportImageContainer" style="width: 100%; height: 280px; background: #0f172a; border-radius: 12px; margin-bottom: 20px; display: flex; align-items: center; justify-content: center; overflow: hidden;">
+            <!-- Imagem vai aqui -->
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 10px;">
+            <span id="exportOldPrice" style="color: #94a3b8; text-decoration: line-through; font-size: 16px; display: none;"></span>
+            <span id="exportNewPrice" style="font-size: 36px; font-weight: 800; color: #22c55e;"></span>
+            <span id="exportDiscount" style="background: #ef4444; color: #fff; padding: 4px 8px; border-radius: 6px; font-size: 14px; font-weight: 700; display: none;"></span>
+        </div>
+        <div id="exportPix" style="display: none; margin-bottom: 15px;">
+            <span style="background: #0ea5a4; color: #001a1a; padding: 4px 10px; border-radius: 6px; font-size: 14px; font-weight: 700;">💠 no Pix</span>
+        </div>
+        <div id="exportCoupon" style="background: #ea580c; color: #fff; padding: 10px; border-radius: 8px; font-weight: 700; text-align: center; margin-bottom: 20px; display: none;"></div>
+        
+        <div style="background: #22c55e; color: #052e16; padding: 16px; border-radius: 12px; text-align: center; font-weight: 700; font-size: 18px;">
+            👉 LINK NA DESCRIÇÃO
+        </div>
     </div>
 
-    <div class="col-preview">
-      <div class="card">
-        <div class="card-header"><span class="card-title">Prévia</span></div>
-        <div id="resultArea" class="result">
-          <pre id="resultBox"></pre>
-          <div class="actions">
-            <button class="btn btn-secondary" onclick="copiarTexto()">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg> Copiar
-            </button>
-            <button class="btn btn-whatsapp" onclick="enviarWhatsApp()">
-              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12.031 2C6.505 2 2 6.478 2 11.979c0 1.76.458 3.454 1.32 4.955L2 22l5.226-1.357a9.93 9.93 0 004.805 1.236h.004c5.523 0 10.027-4.478 10.027-9.979C22.062 6.478 17.558 2 12.031 2zm5.835 14.195c-.244.686-1.42 1.32-1.96 1.378-.54.058-1.054.267-3.556-.84-2.502-1.107-4.058-3.686-4.182-3.855-.124-.17-.99-1.32-.99-2.518 0-1.198.63-1.788.85-2.032.222-.244.48-.305.642-.305.16 0 .32.003.46.01.144.006.338-.055.527.402.19.456.65 1.59.708 1.708.058.118.096.256.018.41-.08.156-.156.252-.31.43-.15.18-.32.4-.458.528-.15.14-.3.294-.13.59.17.29.75 1.24 1.61 2.007.11.098.21.18.317.257.96.698 1.328.79 1.57.884.244.094.386.084.53-.056.14-.14.618-.72.783-.966.164-.244.328-.204.55-.12.224.084 1.41.666 1.65.786.24.12.4.18.46.28.06.1.06.586-.184 1.272z"/></svg> WhatsApp
-            </button>
-            <button class="btn btn-ghost" onclick="exportarImagem()">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg> Imagem
-            </button>
-            <button class="btn btn-ghost" onclick="limparTudo()">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/><path d="M3 21v-5h5"/></svg> Novo
-            </button>
-          </div>
-        </div>
-        <div id="emptyState" style="padding:16px 0;text-align:center;color:var(--text-subtle);font-size:12px">
-          Preencha o formulário e clique em <strong>Gerar anúncio</strong> para ver a prévia aqui.
-        </div>
-      </div>
+    <div class="toast" id="toast"></div>
 
-      <div class="card notes">
-        <div class="notes-head">
-          <span class="card-title">Bloco de anotações</span>
-          <button class="chip" onclick="limparNotas()">Limpar</button>
-        </div>
-        <textarea id="notas" placeholder="Campo livre — cole links, cupons, referências... (não afeta o anúncio)"></textarea>
-      </div>
-    </div>
-  </div>
+    <script>
+        // Estado Global
+        let state = {
+            link: '', loja: 'unknown', titulo: '', comentario: '',
+            precoAtual: 0, precoAntigo: 0, isPix: false,
+            cupom: '', precoCupom: 0, imageUrl: ''
+        };
 
-  <div id="tabLote" class="hidden">
-    <div class="card">
-      <div class="card-header"><span class="card-title">Links em lote</span></div>
-      <div class="field">
-        <label for="linksLote">Um link por linha</label>
-        <textarea id="linksLote" rows="4" placeholder="https://mercadolivre.com/sec/abc123&#10;https://shopee.com.br/...&#10;https://amazon.com.br/..."></textarea>
-        <p class="hint">Tentaremos buscar título e preço automaticamente em cada link.</p>
-      </div>
-      <div class="field">
-        <label for="comentarioLote">Comentário padrão</label>
-        <input type="text" id="comentarioLote" placeholder="Ex: 🔥 ACHADINHO DO DIA!">
-      </div>
-      <button class="btn btn-primary btn-block" onclick="processarLote()">Processar lote</button>
-      <div class="progress" id="batchProgress">
-        <div class="progress-head">
-          <span id="batchStatus">Processando...</span>
-          <span id="batchCounter">0 / 0</span>
-        </div>
-        <div class="progress-bar"><div class="progress-fill" id="batchProgressFill"></div></div>
-      </div>
-      <div class="batch-list" id="batchList"></div>
-    </div>
-  </div>
-</div>
+        const templates = [
+            "🔥 ACHADINHO DO DIA! Corre que é por tempo limitado!",
+            "🚨 PREÇO BAIXOU! Aproveita agora!",
+            "⚡ PROMOÇÃO RELÂMPAGO! Só hoje!",
+            "🎁 ACHADO NO MERCADO LIVRE!",
+            "💸 TÁ DE GRAÇA! Olha esse preço!",
+            "👀 OLHA ISSO! Que oportunidade!",
+            "🤑 CORRE QUE TÁ ACABANDO!",
+            "📉 MENOR PREÇO DOS ÚLTIMOS DIAS!",
+            "🏃‍♂️ ÚLTIMAS UNIDADES! Garanta a sua!",
+            "💎 OFERTA IMPERDÍVEL!"
+        ];
 
-<div id="cardPreview">
-  <div class="c-head"><span class="c-logo">🐦</span><span class="c-brand">ACHADINHOS ML</span></div>
-  <div class="c-comment" id="cardComment"></div>
-  <div class="c-title" id="cardTitle"></div>
-  <div class="c-old" id="cardOldPrice"></div>
-  <div class="c-new" id="cardNewPrice"></div>
-  <div class="c-coupon" id="cardCoupon" style="display:none"></div>
-  <div class="c-cta" id="cardCta">👉 LINK NA DESCRIÇÃO / COMENTÁRIO</div>
-  <div class="c-foot">Oferta sujeita a alteração de preço</div>
-</div>
+        // Inicialização
+        document.addEventListener('DOMContentLoaded', () => {
+            renderChips();
+            loadPrefs();
+            updatePreview();
+        });
 
-<div class="toast" id="toast"></div>
+        function renderChips() {
+            const container = document.getElementById('chipsContainer');
+            container.innerHTML = templates.map(t => 
+                `<button class="chip" onclick="setComment('${t.replace(/'/g, "\\'")}')">${t.split(' ')[0]} ${t.split(' ')[1]}</button>`
+            ).join('');
+        }
 
-<script>
-let textoGerado = "";
-let dadosAtuais = {};
+        function loadPrefs() {
+            const savedComment = localStorage.getItem('curio_comment');
+            if (savedComment) {
+                document.getElementById('inputComentario').value = savedComment;
+                state.comentario = savedComment;
+            }
+            const theme = localStorage.getItem('curio_theme');
+            if (theme === 'light') document.documentElement.setAttribute('data-theme', 'light');
+        }
 
-function toggleTheme() {
-  const cur = document.body.dataset.theme;
-  const next = cur === 'dark' ? 'light' : 'dark';
-  document.body.dataset.theme = next;
-  localStorage.setItem('curio-theme', next);
-  document.getElementById('themeIcon').innerHTML = next === 'dark'
-    ? '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/>'
-    : '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
-}
-(function initTheme() {
-  const saved = localStorage.getItem('curio-theme');
-  if (saved) { document.body.dataset.theme = saved; if (saved === 'dark') toggleTheme(); }
-})();
+        function toggleTheme() {
+            const current = document.documentElement.getAttribute('data-theme');
+            const next = current === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', next);
+            localStorage.setItem('curio_theme', next);
+        }
 
-function mostrarToast(msg, isError = false) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.className = 'toast show' + (isError ? ' error' : '');
-  setTimeout(() => { t.className = 'toast' + (isError ? ' error' : ''); }, 2500);
-}
-function formatarMoeda(v) { return v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }); }
-function mudarTab(tab, el) {
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  el.classList.add('active');
-  document.getElementById('tabUnico').classList.toggle('hidden', tab !== 'unico');
-  document.getElementById('tabUnico').style.display = tab === 'unico' ? 'grid' : 'none';
-  document.getElementById('tabLote').classList.toggle('hidden', tab !== 'lote');
-}
-function togglePix() { /* CSS cuida do visual */ }
+        function showToast(msg, isError = false) {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.className = 'toast show' + (isError ? ' error' : '');
+            setTimeout(() => { t.className = 'toast'; }, 3000);
+        }
 
-function detectarLoja(link = null) {
-  const url = (link || document.getElementById('link').value || '').toLowerCase().trim();
-  const badge = document.getElementById('storeBadge');
-  let loja = 'unknown';
-  if (!url) { badge.classList.add('hidden'); return 'unknown'; }
+        // Lógica de Lojas
+        function detectStore(url) {
+            url = url.toLowerCase();
+            if (url.includes('shopee.com') || url.includes('shope.ee')) return 'shopee';
+            if (url.includes('amazon.') || url.includes('amzn.to') || url.includes('a.co')) return 'amazon';
+            if (url.includes('mercadolivre') || url.includes('mercadolibre') || url.includes('ml.com')) return 'ml';
+            return 'unknown';
+        }
 
-  if (url.includes('shopee.com.br') || url.includes('shope.ee') || url.includes('shopee.com')) loja = 'shopee';
-  else if (url.includes('amazon.') || url.includes('amzn.to') || url.includes('a.co')) loja = 'amazon';
-  else if (url.includes('mercadolivre') || url.includes('mercadolibre') || url.includes('ml.com') || url.includes('mercl')) loja = 'ml';
+        function onLinkChange() {
+            const url = document.getElementById('inputLink').value;
+            state.link = url;
+            state.loja = detectStore(url);
+            
+            const badge = document.getElementById('storeBadge');
+            badge.className = 'badge';
+            if (state.loja === 'shopee') { badge.classList.add('badge-shopee'); badge.textContent = '🛒 Shopee'; badge.classList.remove('hidden'); }
+            else if (state.loja === 'amazon') { badge.classList.add('badge-amazon'); badge.textContent = '📦 Amazon'; badge.classList.remove('hidden'); }
+            else if (state.loja === 'ml') { badge.classList.add('badge-ml'); badge.textContent = '🛍️ Mercado Livre'; badge.classList.remove('hidden'); }
+            else { badge.classList.add('hidden'); }
 
-  badge.classList.remove('hidden');
-  if (loja === 'shopee') { badge.className = 'badge shopee'; badge.textContent = '🛒 Shopee'; }
-  else if (loja === 'amazon') { badge.className = 'badge amazon'; badge.textContent = '📦 Amazon'; }
-  else if (loja === 'ml') { badge.className = 'badge ml'; badge.textContent = '🛍️ Mercado Livre'; }
-  else { badge.classList.add('hidden'); }
-  return loja;
-}
+            updatePreview();
+        }
 
-async function colarLink() {
-  try {
-    const texto = await navigator.clipboard.readText();
-    document.getElementById('link').value = texto;
-    detectarLoja();
-    mostrarToast('Link colado!');
-    buscarDadosLink();
-  } catch { mostrarToast('Permissão negada. Cole manualmente (Ctrl+V).', true); }
-}
-function usarTemplate(texto) {
-  document.getElementById('comentario').value = texto;
-  mostrarToast('Template aplicado!');
-}
+        async function colarLink() {
+            try {
+                const text = await navigator.clipboard.readText();
+                document.getElementById('inputLink').value = text;
+                onLinkChange();
+                fetchData(); // Tenta buscar dados automaticamente
+            } catch { showToast('Não foi possível colar.', true); }
+        }
 
-async function buscarDadosLink() {
-  const link = document.getElementById('link').value.trim();
-  if (!link) return mostrarToast('Cole um link primeiro.', true);
-  const btn = event?.currentTarget;
-  if (btn) { btn.innerHTML = '<span class="spinner"></span>'; btn.disabled = true; }
-  try {
-    const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(link)}`;
-    const html = await (await fetch(proxyUrl)).text();
-    const doc = new DOMParser().parseFromString(html, 'text/html');
+        // Extração de Dados (Microlink)
+        async function fetchData() {
+            const url = document.getElementById('inputLink').value.trim();
+            if (!url) return showToast('Cole um link primeiro.', true);
 
-    let titulo = doc.querySelector('meta[property="og:title"]')?.getAttribute('content') || doc.querySelector('title')?.textContent || '';
-    if (titulo) {
-      titulo = titulo
-        .replace(/\s*\|\s*Mercado Livre.*$/i, '').replace(/\s*-\s*Mercado Livre.*$/i, '').replace(/^Mercado Livre\s*[-|]\s*/i, '')
-        .replace(/\s*\|\s*Shopee.*$/i, '').replace(/\s*-\s*Shopee.*$/i, '')
-        .replace(/\s*\|\s*Amazon.*$/i, '').replace(/\s*-\s*Amazon.*$/i, '')
-        .trim();
-      document.getElementById('titulo').value = titulo;
-    }
-    let preco = null;
-    const ogPrice = doc.querySelector('meta[property="product:price:amount"]');
-    if (ogPrice) preco = parseFloat(ogPrice.getAttribute('content'));
-    if (!preco) {
-      for (const s of doc.querySelectorAll('script[type="application/ld+json"]')) {
-        try {
-          const j = JSON.parse(s.textContent);
-          if (j.offers?.price) { preco = parseFloat(j.offers.price); break; }
-          if (Array.isArray(j.offers) && j.offers[0]?.price) { preco = parseFloat(j.offers[0].price); break; }
-        } catch {}
-      }
-    }
-    if (preco) document.getElementById('precoAtual').value = preco.toFixed(2);
-    if (titulo && preco) mostrarToast('Título e preço detectados!');
-    else if (titulo) mostrarToast('Título detectado! Preencha o preço manualmente.');
-    else mostrarToast('Não consegui detectar. Preencha manualmente.', true);
-  } catch {
-    mostrarToast('Erro ao buscar dados. Preencha manualmente.', true);
-  } finally {
-    if (btn) { btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>'; btn.disabled = false; }
-  }
-}
+            const btn = document.getElementById('btnFetch');
+            const originalHtml = btn.innerHTML;
+            btn.innerHTML = '<div class="spinner"></div>';
+            btn.disabled = true;
 
-function gerarAnuncio() {
-  const link = document.getElementById('link').value.trim();
-  const titulo = document.getElementById('titulo').value.trim();
-  const precoAtual = parseFloat(document.getElementById('precoAtual').value);
-  const precoAntigo = parseFloat(document.getElementById('precoAntigo').value);
-  const cupom = document.getElementById('cupom').value.trim().toUpperCase();
-  const precoCupom = parseFloat(document.getElementById('precoCupom').value);
-  const comentario = document.getElementById('comentario').value.trim();
-  const isPix = document.getElementById('pixCheckbox').checked;
+            try {
+                // Usando Microlink API (gratuita e sem CORS) para pegar metadados
+                const res = await fetch(`https://api.microlink.io/?url=${encodeURIComponent(url)}`);
+                const data = await res.json();
 
-  if (!link || !titulo || isNaN(precoAtual)) return mostrarToast('Preencha Link, Título e Preço Atual.', true);
-  const loja = detectarLoja(link);
+                if (data.status === 'success') {
+                    if (data.data.title) {
+                        document.getElementById('inputTitulo').value = data.data.title;
+                        state.titulo = data.data.title;
+                    }
+                    if (data.data.image && data.data.image.url) {
+                        state.imageUrl = data.data.image.url;
+                    }
+                    // Se a loja for ML, o Microlink consegue puxar o preço as vezes
+                    if (data.data.price) {
+                        document.getElementById('inputPrecoAtual').value = data.data.price;
+                        state.precoAtual = data.data.price;
+                    }
+                    showToast('Dados extraídos com sucesso!');
+                } else {
+                    showToast('Não conseguimos extrair os dados. Preencha manual.', true);
+                }
+            } catch (err) {
+                showToast('Erro ao buscar dados.', true);
+            } finally {
+                btn.innerHTML = originalHtml;
+                btn.disabled = false;
+                updatePreview();
+            }
+        }
 
-  let desconto = '';
-  if (!isNaN(precoAntigo) && precoAntigo > 0 && precoAntigo > precoAtual) {
-    desconto = ` (${Math.round(((precoAntigo - precoAtual) / precoAntigo) * 100)}% OFF 🔥)`;
-  }
-  const pixSuffix = isPix ? ' no Pix 💠' : '';
+        // Inputs e Preview
+        function setComment(text) {
+            document.getElementById('inputComentario').value = text;
+            state.comentario = text;
+            localStorage.setItem('curio_comment', text);
+            updatePreview();
+        }
 
-  textoGerado = "";
-  if (comentario) textoGerado += `${comentario}\n\n`;
-  textoGerado += `🐦 ${titulo}\n\n`;
-  if (!isNaN(precoAntigo) && precoAntigo > 0) textoGerado += `❌ De: ${tacharTexto(formatarMoeda(precoAntigo))}\n`;
-  textoGerado += `✅ Por: ${formatarMoeda(precoAtual)}${pixSuffix}${desconto}\n`;
-  if (cupom) {
-    textoGerado += `🎟️ Cupom: \`${cupom}\`\n`;
-    if (!isNaN(precoCupom) && precoCupom > 0) textoGerado += `💥 Preço final com cupom: ${formatarMoeda(precoCupom)}\n`;
-  }
-  if (loja === 'shopee') {
-    textoGerado += `\nCompre aqui 👇\n${link}`;
-    textoGerado += `\n\n🎟️ Resgate os cupons aqui:\nhttps://s.shopee.com.br/9zzKf0aJV8`;
-  } else if (loja === 'amazon') {
-    textoGerado += `\n👉 ${link}`;
-    textoGerado += `\n\nFRETE GRÁTIS PRIME 🚚\n\n🧡 Teste o prime grátis por 30 dias e cancele quando quiser\nhttps://link.amazon/B09yJ3i1Z`;
-  } else {
-    textoGerado += `\n👉 ${link}`;
-  }
-  textoGerado += `\n\n*_⚡ Aproveite! Condição especial por tempo limitado._*`;
+        function togglePix() {
+            state.isPix = !state.isPix;
+            document.getElementById('switchPix').classList.toggle('active', state.isPix);
+            updatePreview();
+        }
 
-  dadosAtuais = { comentario, titulo, precoAtual, precoAntigo, cupom, precoCupom, desconto, loja, link, isPix };
-  document.getElementById('resultBox').textContent = textoGerado;
-  document.getElementById('resultArea').classList.add('visible');
-  document.getElementById('emptyState').style.display = 'none';
-  mostrarToast('Anúncio gerado!');
-}
+        function formatCurrency(val) {
+            return val.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        }
 
-function tacharTexto(t) { return t.split('').map(c => c + '\u0336').join(''); }
+        function updatePreview() {
+            // Pega valores
+            state.titulo = document.getElementById('inputTitulo').value || 'Título do Produto';
+            state.comentario = document.getElementById('inputComentario').value;
+            state.precoAtual = parseFloat(document.getElementById('inputPrecoAtual').value) || 0;
+            state.precoAntigo = parseFloat(document.getElementById('inputPrecoAntigo').value) || 0;
+            state.cupom = document.getElementById('inputCupom').value.trim().toUpperCase();
+            state.precoCupom = parseFloat(document.getElementById('inputPrecoCupom').value) || 0;
 
-function limparTudo() {
-  ['link','titulo','comentario','precoAtual','precoAntigo','cupom','precoCupom'].forEach(id => document.getElementById(id).value = '');
-  document.getElementById('pixCheckbox').checked = false;
-  textoGerado = '';
-  document.getElementById('resultBox').textContent = '';
-  document.getElementById('resultArea').classList.remove('visible');
-  document.getElementById('emptyState').style.display = 'block';
-  document.getElementById('storeBadge').classList.add('hidden');
-  document.getElementById('link').focus();
-}
-function limparNotas() {
-  if (!document.getElementById('notas').value.trim()) return;
-  if (confirm('Apagar o bloco de anotações?')) {
-    document.getElementById('notas').value = '';
-    mostrarToast('Anotações limpas!');
-  }
-}
+            // 1. Atualizar Card Visual
+            document.getElementById('previewTitle').textContent = state.titulo;
+            document.getElementById('previewComment').textContent = state.comentario || 'Sua frase de impacto aqui';
+            
+            if (state.imageUrl) {
+                document.getElementById('previewImageContainer').innerHTML = `<img src="${state.imageUrl}" alt="Produto">`;
+            } else {
+                document.getElementById('previewImageContainer').innerHTML = `<div class="placeholder">🖼️</div>`;
+            }
 
-function copiarTexto() {
-  if (!textoGerado) return;
-  navigator.clipboard.writeText(textoGerado).then(() => mostrarToast('Copiado!'));
-}
-function enviarWhatsApp() {
-  if (!textoGerado) return mostrarToast('Gere o anúncio primeiro!', true);
-  window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(textoGerado)}`, '_blank');
-}
+            // Preços
+            const newPriceEl = document.getElementById('previewNewPrice');
+            const oldPriceEl = document.getElementById('previewOldPrice');
+            const discountEl = document.getElementById('previewDiscount');
+            const pixContainer = document.getElementById('previewPixContainer');
 
-async function exportarImagem() {
-  if (!textoGerado) return mostrarToast('Gere o anúncio primeiro!', true);
-  const d = dadosAtuais;
-  const card = document.getElementById('cardPreview');
+            newPriceEl.textContent = state.precoAtual > 0 ? formatCurrency(state.precoAtual) : 'R$ 0,00';
+            
+            if (state.precoAntigo > state.precoAtual && state.precoAntigo > 0) {
+                oldPriceEl.textContent = formatCurrency(state.precoAntigo);
+                oldPriceEl.classList.remove('hidden');
+                const pct = Math.round(((state.precoAntigo - state.precoAtual) / state.precoAntigo) * 100);
+                discountEl.textContent = `${pct}% OFF`;
+                discountEl.classList.remove('hidden');
+            } else {
+                oldPriceEl.classList.add('hidden');
+                discountEl.classList.add('hidden');
+            }
 
-  document.getElementById('cardComment').textContent = d.comentario || '';
-  document.getElementById('cardComment').style.display = d.comentario ? 'block' : 'none';
-  document.getElementById('cardTitle').textContent = `🐦 ${d.titulo}`;
-  if (!isNaN(d.precoAntigo) && d.precoAntigo > 0) {
-    const el = document.getElementById('cardOldPrice');
-    el.textContent = `De: ${formatarMoeda(d.precoAntigo)}`;
-    el.style.display = 'block';
-  } else document.getElementById('cardOldPrice').style.display = 'none';
+            pixContainer.classList.toggle('hidden', !state.isPix);
 
-  const pixBadge = d.isPix ? ' <span class="c-pix">💠 no Pix</span>' : '';
-  document.getElementById('cardNewPrice').innerHTML = `Por: ${formatarMoeda(d.precoAtual)}${d.desconto}${pixBadge}`;
+            // 2. Atualizar Texto do WhatsApp
+            let text = '';
+            if (state.comentario) text += `${state.comentario}\n\n`;
+            text += `🐦 ${state.titulo}\n\n`;
 
-  if (d.cupom) {
-    document.getElementById('cardCoupon').innerHTML = `🎟️ CUPOM: <code>${d.cupom}</code>`;
-    document.getElementById('cardCoupon').style.display = 'inline-block';
-  } else document.getElementById('cardCoupon').style.display = 'none';
+            if (state.precoAntigo > 0 && state.precoAntigo > state.precoAtual) {
+                // Simulação de tachado no texto puro
+                const tachado = formatCurrency(state.precoAntigo).split('').map(c => c + '\u0336').join('');
+                text += `❌ De: ${tachado}\n`;
+            }
+            
+            if (state.precoAtual > 0) {
+                text += `✅ Por: ${formatCurrency(state.precoAtual)}${state.isPix ? ' no Pix 💠' : ''}\n`;
+            }
 
-  const cta = document.getElementById('cardCta');
-  if (d.loja === 'shopee') cta.textContent = '👇 COMPRE AQUI 👇';
-  else if (d.loja === 'amazon') cta.textContent = '📦 COMPRE NA AMAZON 📦';
-  else cta.textContent = '👉 LINK NA DESCRIÇÃO / COMENTÁRIO';
+            if (state.cupom) {
+                text += `🎟️ Cupom: \`${state.cupom}\`\n`;
+                if (state.precoCupom > 0) text += `💥 Preço final com cupom: ${formatCurrency(state.precoCupom)}\n`;
+            }
 
-  await new Promise(r => setTimeout(r, 100));
-  try {
-    mostrarToast('Gerando imagem...');
-    const canvas = await html2canvas(card, { backgroundColor: null, scale: 2, logging: false });
-    canvas.toBlob(blob => {
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url; a.download = `oferta-${Date.now()}.png`;
-      a.click(); URL.revokeObjectURL(url);
-      mostrarToast('Imagem baixada!');
-    });
-  } catch { mostrarToast('Erro ao gerar imagem.', true); }
-}
+            if (state.link) {
+                if (state.loja === 'shopee') {
+                    text += `\nCompre aqui 👇\n${state.link}`;
+                    text += `\n\n🎟️ Resgate os cupons aqui:\nhttps://s.shopee.com.br/9zzKf0aJV8`;
+                } else if (state.loja === 'amazon') {
+                    text += `\n👉 ${state.link}`;
+                    text += `\n\nFRETE GRÁTIS PRIME 🚚\n\n🧡 Teste o prime grátis por 30 dias e cancele quando quiser\nhttps://link.amazon/B09yJ3i1Z`;
+                } else {
+                    text += `\n👉 ${state.link}`;
+                }
+            }
+            
+            text += `\n\n*_⚡ Aproveite! Condição especial por tempo limitado._*`;
+            
+            document.getElementById('outputText').textContent = text || 'Preencha os campos para gerar o texto...';
 
-async function processarLote() {
-  const linksTexto = document.getElementById('linksLote').value.trim();
-  const comentarioPadrao = document.getElementById('comentarioLote').value.trim();
-  if (!linksTexto) return mostrarToast('Cole pelo menos um link.', true);
-  const links = linksTexto.split('\n').map(l => l.trim()).filter(Boolean);
-  if (!links.length) return mostrarToast('Nenhum link válido.', true);
+            // Mostrar card de ações se tiver link e título
+            if (state.link && state.titulo !== 'Título do Produto') {
+                document.getElementById('exportCard').classList.remove('hidden');
+            }
+        }
 
-  const progress = document.getElementById('batchProgress');
-  const status = document.getElementById('batchStatus');
-  const counter = document.getElementById('batchCounter');
-  const fill = document.getElementById('batchProgressFill');
-  const list = document.getElementById('batchList');
-  progress.classList.add('visible');
-  list.innerHTML = '';
+        // Ações de Exportação
+        function copyText() {
+            const text = document.getElementById('outputText').textContent;
+            if (!text) return;
+            navigator.clipboard.writeText(text).then(() => {
+                showToast('Texto copiado com sucesso!');
+            });
+        }
 
-  let processados = 0, sucessos = 0;
-  for (let i = 0; i < links.length; i++) {
-    const link = links[i];
-    counter.textContent = `${i + 1} / ${links.length}`;
-    status.textContent = `Processando link ${i + 1}...`;
-    fill.style.width = `${(i / links.length) * 100}%`;
-    const item = document.createElement('div');
-    item.className = 'batch-item';
-    item.innerHTML = `<div class="batch-item-title">⏳ Processando...</div><div class="batch-item-text">${link}</div>`;
-    list.appendChild(item);
+        function sendWhatsApp() {
+            const text = document.getElementById('outputText').textContent;
+            if (!text) return;
+            window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank');
+        }
 
-    try {
-      const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(link)}`;
-      const html = await (await fetch(proxyUrl)).text();
-      const doc = new DOMParser().parseFromString(html, 'text/html');
-      let titulo = doc.querySelector('meta[property="og:title"]')?.getAttribute('content') || doc.querySelector('title')?.textContent || '';
-      if (titulo) titulo = titulo
-        .replace(/\s*\|\s*Mercado Livre.*$/i, '').replace(/\s*-\s*Mercado Livre.*$/i, '').replace(/^Mercado Livre\s*[-|]\s*/i, '')
-        .replace(/\s*\|\s*Shopee.*$/i, '').replace(/\s*-\s*Shopee.*$/i, '')
-        .replace(/\s*\|\s*Amazon.*$/i, '').replace(/\s*-\s*Amazon.*$/i, '').trim();
-      let preco = null;
-      const ogPrice = doc.querySelector('meta[property="product:price:amount"]');
-      if (ogPrice) preco = parseFloat(ogPrice.getAttribute('content'));
-      if (!preco) for (const s of doc.querySelectorAll('script[type="application/ld+json"]')) {
-        try {
-          const j = JSON.parse(s.textContent);
-          if (j.offers?.price) { preco = parseFloat(j.offers.price); break; }
-          if (Array.isArray(j.offers) && j.offers[0]?.price) { preco = parseFloat(j.offers[0].price); break; }
-        } catch {}
-      }
-      if (!titulo || !preco) throw new Error('Dados incompletos');
-      const lojaLote = detectarLoja(link);
+        async function exportImage() {
+            const card = document.getElementById('cardExport');
+            if (!card) return showToast('Erro ao gerar imagem.', true);
 
-      let texto = '';
-      if (comentarioPadrao) texto += `${comentarioPadrao}\n\n`;
-      texto += `🐦 ${titulo}\n\n✅ Por: ${formatarMoeda(preco)}\n`;
-      if (lojaLote === 'shopee') {
-        texto += `\n👇 Compre aqui 👇\n${link}`;
-        texto += `\n\n🎟️ Resgate os cupons aqui:\nhttps://s.shopee.com.br/9zzKf0aJV8`;
-      } else if (lojaLote === 'amazon') {
-        texto += `\n👉 ${link}`;
-        texto += `\n\nFRETE GRÁTIS PRIME 🚚\n\n🧡 Teste o prime grátis por 30 dias e cancele quando quiser\nhttps://link.amazon/B09yJ3i1Z`;
-      } else texto += `\n👉 ${link}`;
+            // Preencher o card oculto
+            document.getElementById('exportComment').textContent = state.comentario || '';
+            document.getElementById('exportComment').style.display = state.comentario ? 'block' : 'none';
+            document.getElementById('exportTitle').textContent = state.titulo;
+            
+            if (state.imageUrl) {
+                document.getElementById('exportImageContainer').innerHTML = `<img src="${state.imageUrl}" style="width:100%; height:100%; object-fit:contain; padding:10px;">`;
+            } else {
+                document.getElementById('exportImageContainer').innerHTML = '';
+            }
 
-      item.className = 'batch-item';
-      item.innerHTML = `
-        <div class="batch-item-title">✅ ${titulo}</div>
-        <div class="batch-item-text">${texto}</div>
-        <div class="batch-item-actions">
-          <button class="btn btn-secondary" onclick="copiarTextoItem(\`${texto.replace(/`/g, '\\`')}\`)">Copiar</button>
-          <button class="btn btn-whatsapp" onclick="enviarWhatsItem(\`${texto.replace(/`/g, '\\`')}\`)">WhatsApp</button>
-        </div>`;
-      sucessos++;
-    } catch (err) {
-      item.className = 'batch-item error';
-      item.innerHTML = `<div class="batch-item-title">❌ Falha</div><div class="batch-item-text">${link}\n\n${err.message}</div>`;
-    }
-    processados++;
-    fill.style.width = `${(processados / links.length) * 100}%`;
-    await new Promise(r => setTimeout(r, 800));
-  }
-  status.textContent = `Concluído! ${sucessos}/${links.length} com sucesso.`;
-  mostrarToast(`Lote processado: ${sucessos}/${links.length}`);
-}
-function copiarTextoItem(t) { navigator.clipboard.writeText(t).then(() => mostrarToast('Copiado!')); }
-function enviarWhatsItem(t) { window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(t)}`, '_blank'); }
+            document.getElementById('exportOldPrice').textContent = state.precoAntigo > state.precoAtual ? formatCurrency(state.precoAntigo) : '';
+            document.getElementById('exportOldPrice').style.display = state.precoAntigo > state.precoAtual ? 'inline' : 'none';
+            
+            document.getElementById('exportNewPrice').textContent = formatCurrency(state.precoAtual);
+            
+            if (state.precoAntigo > state.precoAtual) {
+                const pct = Math.round(((state.precoAntigo - state.precoAtual) / state.precoAntigo) * 100);
+                document.getElementById('exportDiscount').textContent = `${pct}% OFF`;
+                document.getElementById('exportDiscount').style.display = 'inline';
+            } else {
+                document.getElementById('exportDiscount').style.display = 'none';
+            }
 
-document.addEventListener('keydown', (e) => {
-  if (e.key === 'Enter' && e.target.tagName === 'INPUT' && !e.shiftKey) {
-    e.preventDefault();
-    const inputs = Array.from(document.querySelectorAll('#tabUnico input, #tabUnico textarea'));
-    const idx = inputs.indexOf(e.target);
-    if (idx >= 0 && idx < inputs.length - 1) inputs[idx + 1].focus();
-    else gerarAnuncio();
-  }
-});
-</script>
+            document.getElementById('exportPix').style.display = state.isPix ? 'block' : 'none';
+            
+            if (state.cupom) {
+                const couponEl = document.getElementById('exportCoupon');
+                couponEl.textContent = `🎟️ CUPOM: ${state.cupom}`;
+                couponEl.style.display = 'block';
+            } else {
+                document.getElementById('exportCoupon').style.display = 'none';
+            }
+
+            showToast('Gerando imagem...');
+            try {
+                const canvas = await html2canvas(card, { scale: 2, useCORS: true, backgroundColor: null });
+                canvas.toBlob(blob => {
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `oferta-${Date.now()}.png`;
+                    a.click();
+                    URL.revokeObjectURL(url);
+                    showToast('Imagem baixada!');
+                });
+            } catch (err) {
+                console.error(err);
+                showToast('Erro ao gerar imagem.', true);
+            }
+        }
+    </script>
 </body>
 </html>
