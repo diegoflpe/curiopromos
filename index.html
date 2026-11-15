@@ -4,113 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gerador de Ofertas Curió Promos</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js">
-    // ========== MELHORIAS DE USABILIDADE ==========
-    function urlValida(value) {
-        try { const u = new URL(value); return ['https:', 'http:'].includes(u.protocol) && !!u.hostname.includes('.'); }
-        catch { return false; }
-    }
-    function descontoAtual() {
-        const atual = Number(document.getElementById('precoAtual').value);
-        const antigo = Number(document.getElementById('precoAntigo').value);
-        const cupom = Number(document.getElementById('precoCupom').value);
-        const el = document.getElementById('discountInfo');
-        const partes = [];
-        if (atual > 0 && antigo > atual) partes.push(`${Math.round((1-atual/antigo)*100)}% OFF`);
-        if (cupom > 0 && atual > cupom) partes.push(`Economia com cupom: ${formatarMoeda(atual-cupom)}`);
-        el.textContent = partes.join(' • ');
-    }
-    let previewTimer;
-    document.querySelectorAll('#tabUnico input, #tabUnico textarea:not(#notas)').forEach(el => {
-        el.addEventListener('input', () => {
-            descontoAtual();
-            clearTimeout(previewTimer);
-            previewTimer = setTimeout(() => {
-                if (!document.getElementById('previewAuto').checked) return;
-                const link = document.getElementById('link').value.trim();
-                const titulo = document.getElementById('titulo').value.trim();
-                const preco = Number(document.getElementById('precoAtual').value);
-                if (urlValida(link) && titulo && preco > 0) gerarAnuncio();
-                else document.getElementById('resultArea').style.display = 'none';
-            }, 350);
-        });
-    });
-    const notasEl = document.getElementById('notas');
-    try { notasEl.value = localStorage.getItem('curio_notas') || ''; } catch {}
-    notasEl.addEventListener('input', () => { try { localStorage.setItem('curio_notas', notasEl.value); } catch {} });
-    const limparNotasOriginal = limparNotas;
-    limparNotas = function() { limparNotasOriginal(); try { localStorage.setItem('curio_notas', notasEl.value); } catch {} };
-    const HIST_KEY = 'curio_historico_v2';
-    function lerHistorico() {
-        try { const data = JSON.parse(localStorage.getItem(HIST_KEY) || '[]'); return Array.isArray(data) ? data : []; }
-        catch { return []; }
-    }
-    function salvarAnuncio() {
-        if (!textoGerado || !dadosAtuais.titulo) { mostrarToast('Gere um anúncio antes de salvar.', true); return; }
-        try {
-            const historico = lerHistorico();
-            historico.unshift({ id: Date.now(), data: new Date().toLocaleString('pt-BR'), texto: textoGerado, dados: {...dadosAtuais} });
-            localStorage.setItem(HIST_KEY, JSON.stringify(historico.slice(0, 150)));
-            mostrarToast('Oferta salva no histórico! ⭐');
-        } catch { mostrarToast('Não foi possível salvar. Armazenamento cheio ou bloqueado.', true); }
-    }
-    function renderizarHistorico() {
-        const termo = (document.getElementById('buscaHistorico').value || '').toLowerCase();
-        const lista = document.getElementById('historicoLista'); lista.replaceChildren();
-        const dados = lerHistorico().filter(i => (i.dados?.titulo || '').toLowerCase().includes(termo) || (i.dados?.loja || '').toLowerCase().includes(termo));
-        if (!dados.length) { const empty = document.createElement('p'); empty.className = 'helper-text'; empty.textContent = 'Nenhuma oferta encontrada.'; lista.append(empty); return; }
-        dados.forEach(item => {
-            const box = document.createElement('div'); box.className = 'batch-item';
-            const heading = document.createElement('div'); heading.className = 'batch-item-title'; heading.textContent = item.dados.titulo + ' • ' + item.data;
-            const content = document.createElement('div'); content.className = 'batch-item-text'; content.textContent = item.texto;
-            const actions = document.createElement('div'); actions.className = 'batch-item-actions';
-            const buttons = [
-                ['📋 Copiar', () => copiarTextoItem(item.texto)],
-                ['✏️ Editar', () => carregarHistorico(item)],
-                ['WhatsApp', () => enviarWhatsItem(item.texto)],
-                ['🗑️ Excluir', () => excluirHistorico(item.id)]
-            ];
-            buttons.forEach(([label, fn]) => { const b = document.createElement('button'); b.className = 'btn-copy'; b.textContent = label; b.onclick = fn; actions.append(b); });
-            box.append(heading, content, actions); lista.append(box);
-        });
-    }
-    function carregarHistorico(item) {
-        const d = item.dados || {};
-        const campos = { link:d.link, titulo:d.titulo, comentario:d.comentario, precoAtual:d.precoAtual, precoAntigo:d.precoAntigo, cupom:d.cupom, precoCupom:d.precoCupom };
-        Object.entries(campos).forEach(([id,value]) => { document.getElementById(id).value = value ?? ''; });
-        document.getElementById('pixCheckbox').checked = !!d.isPix;
-        document.getElementById('pixLabel').classList.toggle('active', !!d.isPix);
-        const tab = document.querySelector('.tab'); mudarTab('unico', tab);
-        detectarLoja(); descontoAtual(); gerarAnuncio(); window.scrollTo({top:0,behavior:'smooth'});
-    }
-    function excluirHistorico(id) {
-        if (!confirm('Excluir esta oferta do histórico?')) return;
-        try { localStorage.setItem(HIST_KEY, JSON.stringify(lerHistorico().filter(i => i.id !== id))); renderizarHistorico(); }
-        catch { mostrarToast('Não foi possível excluir.', true); }
-    }
-    function exportarHistorico() {
-        const blob = new Blob([JSON.stringify(lerHistorico(), null, 2)], {type:'application/json'});
-        const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href=url; a.download='curio-promos-historico.json'; a.click(); setTimeout(()=>URL.revokeObjectURL(url),1500);
-    }
-    // A detecção de loja não deve alterar o badge do formulário durante o processamento em lote.
-    const detectarLojaOriginal = detectarLoja;
-    detectarLoja = function(link = null) {
-        if (link !== null) {
-            const host = (() => { try { return new URL(link).hostname.toLowerCase(); } catch { return ''; } })();
-            if (host === 'shope.ee' || host === 'shopee.com.br' || host.endsWith('.shopee.com.br') || host === 'shopee.com' || host.endsWith('.shopee.com')) return 'shopee';
-            if (host.includes('mercadolivre') || host.includes('mercadolibre') || host === 'ml.com' || host.endsWith('.ml.com')) return 'ml';
-            return 'unknown';
-        }
-        const value = document.getElementById('link').value.trim();
-        const loja = detectarLoja(value);
-        const badge = document.getElementById('storeBadge');
-        badge.style.display = loja === 'unknown' ? 'none' : 'inline-block';
-        badge.className = 'store-badge ' + loja;
-        badge.textContent = loja === 'shopee' ? '🛒 Shopee' : '🛍️ Mercado Livre';
-        return loja;
-    };
-
-</script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         :root {
             --bg-color: #121212;
@@ -356,28 +250,6 @@
         .store-badge.ml { background: #ffe600; color: #000; }
         .store-badge.shopee { background: #ee4d2d; color: #fff; }
         .store-badge.unknown { background: #555; color: #fff; }
-
-        body { padding: clamp(10px, 3vw, 32px); background: radial-gradient(ellipse at top, #203328 0%, #121212 50%); }
-        .container { max-width: 1040px; border: 1px solid #343434; }
-        h1 { font-size: clamp(1.35rem, 3vw, 2rem); letter-spacing: -.03em; }
-        .tabs { overflow-x: auto; }
-        .tab { min-width: 105px; white-space: nowrap; }
-        .status-banner { background: #183a28; color: #b6ffd5; padding: 12px 14px; border: 1px solid #285b3e; border-radius: 10px; margin-bottom: 20px; font-size: .87rem; }
-        .live-options { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin: 12px 0; }
-        .live-check { display: flex; align-items: center; gap: 8px; margin: 0; color: #eee; }
-        .live-check input { width: 18px; height: 18px; accent-color: var(--accent-green); }
-        #discountInfo { color: var(--accent-green); font-size: .85rem; }
-        .btn-save { background: #e6b84a; color: #181818; }
-        .btn-outline { background: #343434; color: white; width: auto; padding: 10px 14px; margin: 0; font-size: .85rem; }
-        .history-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 15px; }
-        .history-head h2 { font-size: 1.1rem; }
-        .result-box { overflow-wrap: anywhere; font-family: inherit; }
-        input:focus-visible, button:focus-visible, textarea:focus-visible { outline: 2px solid var(--accent-green); outline-offset: 2px; }
-        .batch-item-text { overflow-wrap: anywhere; }
-        .batch-item-actions { flex-wrap: wrap; }
-        .batch-item-actions button { min-width: 95px; }
-        @media (min-width: 760px) { #tabUnico { max-width: 850px; margin: auto; } .container { padding: 34px; } }
-        @media (max-width: 520px) { .container { padding: 16px; border-radius: 12px; } .row { flex-direction: column; gap: 0; } .input-with-btn { flex-wrap: wrap; } .input-with-btn input { min-width: 100%; } .input-with-btn button { flex: 1; } .action-buttons { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); } .action-buttons button { min-width: 0; font-size: .87rem; padding: 12px 6px; } .history-head { align-items: flex-start; } .history-head h2 { font-size: 1rem; } .toast { width: calc(100% - 30px); text-align: center; } }
     </style>
 </head>
 <body>
@@ -389,12 +261,10 @@
     <div class="tabs">
         <div class="tab active" onclick="mudarTab('unico', this)">📝 Oferta Única</div>
         <div class="tab" onclick="mudarTab('lote', this)">📦 Lote</div>
-        <div class="tab" onclick="mudarTab('historico', this)">🕘 Histórico</div>
     </div>
 
     <!-- ===== MODO OFERTA ÚNICA ===== -->
     <div id="tabUnico">
-        <div class="status-banner">✨ Crie ofertas rapidamente • Os dados ficam no seu navegador</div>
         <div class="input-group">
             <label>🔗 Link de Afiliado <span id="storeBadge" class="store-badge unknown" style="display:none;"></span></label>
             <div class="input-with-btn">
@@ -455,7 +325,6 @@
             </div>
         </div>
 
-        <div class="live-options"><label class="live-check"><input type="checkbox" id="previewAuto" checked> Prévia automática</label><span id="discountInfo" aria-live="polite"></span></div>
         <button class="btn-generate" onclick="gerarAnuncio()">Gerar Anúncio ✨</button>
 
         <div class="result-area" id="resultArea">
@@ -470,7 +339,6 @@
                 </button>
                 <button class="btn-image" onclick="exportarImagem()">Imagem 🖼️</button>
                 <button class="btn-new" onclick="limparTudo()">Novo 🔄</button>
-                <button class="btn-save" onclick="salvarAnuncio()">Salvar ⭐</button>
             </div>
         </div>
 
@@ -510,12 +378,6 @@
         </div>
 
         <div class="batch-list" id="batchList"></div>
-    </div>
-    <div id="tabHistorico" class="batch-area">
-        <div class="history-head"><h2>🕘 Histórico de ofertas</h2><button class="btn-outline" onclick="exportarHistorico()">Exportar JSON</button></div>
-        <p class="helper-text">Ofertas salvas neste dispositivo. Faça um backup antes de limpar os dados do navegador.</p>
-        <div class="input-group"><input id="buscaHistorico" placeholder="Buscar por produto ou loja..." oninput="renderizarHistorico()"></div>
-        <div class="batch-list" id="historicoLista"></div>
     </div>
 </div>
 
@@ -560,8 +422,6 @@
         el.classList.add('active');
         document.getElementById('tabUnico').style.display = tab === 'unico' ? 'block' : 'none';
         document.getElementById('tabLote').style.display = tab === 'lote' ? 'block' : 'none';
-        document.getElementById('tabHistorico').style.display = tab === 'historico' ? 'block' : 'none';
-        if (tab === 'historico') renderizarHistorico();
     }
 
     // ========== TOGGLE PIX ==========
@@ -637,13 +497,12 @@
             return;
         }
 
-        const btnBuscar = document.querySelector('button[onclick="buscarDadosLink()"]');
+        const btnBuscar = event?.target;
         if (btnBuscar) { btnBuscar.innerHTML = '<span class="loading"></span>'; btnBuscar.disabled = true; }
 
         try {
             const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(link)}`;
             const response = await fetch(proxyUrl);
-            if (!response.ok) throw new Error('Serviço de consulta indisponível');
             const html = await response.text();
 
             const parser = new DOMParser();
@@ -714,8 +573,8 @@
         const comentario = document.getElementById('comentario').value.trim();
         const isPix = document.getElementById('pixCheckbox').checked;
 
-        if (!link || !titulo || !Number.isFinite(precoAtual) || precoAtual <= 0 || !urlValida(link)) {
-            mostrarToast('Informe link válido, título e preço maior que zero.', true);
+        if (!link || !titulo || isNaN(precoAtual)) {
+            mostrarToast('Preencha Link, Título e Preço Atual.', true);
             return;
         }
 
@@ -759,8 +618,8 @@ textoGerado += `\n\n*_⚡ Aproveite! Condição especial por tempo limitado._*`;
 
         document.getElementById('resultBox').textContent = textoGerado;
         document.getElementById('resultArea').style.display = 'block';
-        if (!document.getElementById('previewAuto').checked) document.getElementById('resultArea').scrollIntoView({ behavior: 'smooth' });
-        if (!document.getElementById('previewAuto').checked) mostrarToast('Anúncio gerado! 🎉');
+        document.getElementById('resultArea').scrollIntoView({ behavior: 'smooth' });
+        mostrarToast('Anúncio gerado! 🎉');
     }
 
     // ========== TACHAR TEXTO ==========
@@ -805,8 +664,9 @@ textoGerado += `\n\n*_⚡ Aproveite! Condição especial por tempo limitado._*`;
                 btn.innerHTML = original;
                 btn.style.backgroundColor = "var(--input-bg)";
                 btn.style.color = "var(--text-primary)";
+                limparTudo();
             }, 1500);
-        }).catch(() => mostrarToast('Não foi possível copiar. Use HTTPS ou copie manualmente.', true));
+        });
     }
 
     // ========== WHATSAPP ==========
@@ -814,7 +674,7 @@ textoGerado += `\n\n*_⚡ Aproveite! Condição especial por tempo limitado._*`;
         if (!textoGerado) { mostrarToast('Gere o anúncio primeiro!', true); return; }
         const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(textoGerado)}`;
         window.open(url, '_blank');
-        mostrarToast('WhatsApp aberto. Seu anúncio foi preservado.');
+        setTimeout(() => limparTudo(), 500);
     }
 
     // ========== EXPORTAR COMO IMAGEM ==========
@@ -835,11 +695,12 @@ textoGerado += `\n\n*_⚡ Aproveite! Condição especial por tempo limitado._*`;
             document.getElementById('cardOldPrice').style.display = 'none';
         }
 
-        document.getElementById('cardNewPrice').textContent = `Por: ${formatarMoeda(d.precoAtual)}${d.desconto}${d.isPix ? ' • no Pix' : ''}`;
+        const pixBadge = d.isPix ? ' <span class="card-pix-badge">💠 no Pix</span>' : '';
+        document.getElementById('cardNewPrice').innerHTML = `Por: ${formatarMoeda(d.precoAtual)}${d.desconto}${pixBadge}`;
 
         // 🔥 Cupom com estilo de código no card
         if (d.cupom) {
-            document.getElementById('cardCoupon').textContent = `🎟️ CUPOM: ${d.cupom}`;
+            document.getElementById('cardCoupon').innerHTML = `🎟️ CUPOM: <code>${d.cupom}</code>`;
             document.getElementById('cardCoupon').style.display = 'inline-block';
         } else {
             document.getElementById('cardCoupon').style.display = 'none';
@@ -868,7 +729,7 @@ textoGerado += `\n\n*_⚡ Aproveite! Condição especial por tempo limitado._*`;
                 a.href = url;
                 a.download = `oferta-${Date.now()}.png`;
                 a.click();
-                setTimeout(() => URL.revokeObjectURL(url), 1500);
+                URL.revokeObjectURL(url);
                 mostrarToast('Imagem baixada! 🖼️');
             });
         } catch (err) {
@@ -884,7 +745,7 @@ textoGerado += `\n\n*_⚡ Aproveite! Condição especial por tempo limitado._*`;
 
         if (!linksTexto) { mostrarToast('Cole pelo menos um link.', true); return; }
 
-        const links = [...new Set(linksTexto.split('\n').map(l => l.trim()).filter(l => l))].slice(0, 50);
+        const links = linksTexto.split('\n').map(l => l.trim()).filter(l => l);
         if (links.length === 0) { mostrarToast('Nenhum link válido.', true); return; }
 
         const progress = document.getElementById('batchProgress');
@@ -907,7 +768,10 @@ textoGerado += `\n\n*_⚡ Aproveite! Condição especial por tempo limitado._*`;
 
             const item = document.createElement('div');
             item.className = 'batch-item';
-            item.textContent = '⏳ Processando: ' + link;
+            item.innerHTML = `
+                <div class="batch-item-title">⏳ Processando...</div>
+                <div class="batch-item-text">${link}</div>
+            `;
             list.appendChild(item);
 
             try {
@@ -964,17 +828,21 @@ textoGerado += `\n\n*_⚡ Aproveite! Condição especial por tempo limitado._*`;
                 }
 
                 item.className = 'batch-item';
-                item.replaceChildren();
-                const title = document.createElement('div'); title.className = 'batch-item-title'; title.textContent = '✅ ' + titulo;
-                const preview = document.createElement('div'); preview.className = 'batch-item-text'; preview.textContent = texto;
-                const actions = document.createElement('div'); actions.className = 'batch-item-actions';
-                const copy = document.createElement('button'); copy.className = 'btn-copy'; copy.textContent = 'Copiar 📋'; copy.onclick = () => copiarTextoItem(texto);
-                const whats = document.createElement('button'); whats.className = 'btn-whatsapp'; whats.textContent = 'WhatsApp'; whats.onclick = () => enviarWhatsItem(texto);
-                actions.append(copy, whats); item.append(title, preview, actions);
+                item.innerHTML = `
+                    <div class="batch-item-title">✅ ${titulo}</div>
+                    <div class="batch-item-text">${texto}</div>
+                    <div class="batch-item-actions">
+                        <button class="btn-copy" onclick="copiarTextoItem(\`${texto.replace(/`/g, '\\`')}\`)">Copiar 📋</button>
+                        <button class="btn-whatsapp" onclick="enviarWhatsItem(\`${texto.replace(/`/g, '\\`')}\`)">WhatsApp</button>
+                    </div>
+                `;
                 sucessos++;
             } catch (err) {
                 item.className = 'batch-item error';
-                item.textContent = `❌ Não foi possível obter os dados de ${link}. Preencha manualmente na aba Oferta Única.`;
+                item.innerHTML = `
+                    <div class="batch-item-title">❌ Falha ao processar</div>
+                    <div class="batch-item-text">${link}\n\nMotivo: ${err.message}</div>
+                `;
             }
 
             processados++;
@@ -988,7 +856,7 @@ textoGerado += `\n\n*_⚡ Aproveite! Condição especial por tempo limitado._*`;
     }
 
     function copiarTextoItem(texto) {
-        navigator.clipboard.writeText(texto).then(() => mostrarToast('Copiado! ✅')).catch(() => mostrarToast('Copie manualmente; área de transferência indisponível.', true));
+        navigator.clipboard.writeText(texto).then(() => mostrarToast('Copiado! ✅'));
     }
 
     function enviarWhatsItem(texto) {
@@ -1005,112 +873,6 @@ textoGerado += `\n\n*_⚡ Aproveite! Condição especial por tempo limitado._*`;
             else gerarAnuncio();
         }
     });
-
-    // ========== MELHORIAS DE USABILIDADE ==========
-    function urlValida(value) {
-        try { const u = new URL(value); return ['https:', 'http:'].includes(u.protocol) && !!u.hostname.includes('.'); }
-        catch { return false; }
-    }
-    function descontoAtual() {
-        const atual = Number(document.getElementById('precoAtual').value);
-        const antigo = Number(document.getElementById('precoAntigo').value);
-        const cupom = Number(document.getElementById('precoCupom').value);
-        const el = document.getElementById('discountInfo');
-        const partes = [];
-        if (atual > 0 && antigo > atual) partes.push(`${Math.round((1-atual/antigo)*100)}% OFF`);
-        if (cupom > 0 && atual > cupom) partes.push(`Economia com cupom: ${formatarMoeda(atual-cupom)}`);
-        el.textContent = partes.join(' • ');
-    }
-    let previewTimer;
-    document.querySelectorAll('#tabUnico input, #tabUnico textarea:not(#notas)').forEach(el => {
-        el.addEventListener('input', () => {
-            descontoAtual();
-            clearTimeout(previewTimer);
-            previewTimer = setTimeout(() => {
-                if (!document.getElementById('previewAuto').checked) return;
-                const link = document.getElementById('link').value.trim();
-                const titulo = document.getElementById('titulo').value.trim();
-                const preco = Number(document.getElementById('precoAtual').value);
-                if (urlValida(link) && titulo && preco > 0) gerarAnuncio();
-                else document.getElementById('resultArea').style.display = 'none';
-            }, 350);
-        });
-    });
-    const notasEl = document.getElementById('notas');
-    try { notasEl.value = localStorage.getItem('curio_notas') || ''; } catch {}
-    notasEl.addEventListener('input', () => { try { localStorage.setItem('curio_notas', notasEl.value); } catch {} });
-    const limparNotasOriginal = limparNotas;
-    limparNotas = function() { limparNotasOriginal(); try { localStorage.setItem('curio_notas', notasEl.value); } catch {} };
-    const HIST_KEY = 'curio_historico_v2';
-    function lerHistorico() {
-        try { const data = JSON.parse(localStorage.getItem(HIST_KEY) || '[]'); return Array.isArray(data) ? data : []; }
-        catch { return []; }
-    }
-    function salvarAnuncio() {
-        if (!textoGerado || !dadosAtuais.titulo) { mostrarToast('Gere um anúncio antes de salvar.', true); return; }
-        try {
-            const historico = lerHistorico();
-            historico.unshift({ id: Date.now(), data: new Date().toLocaleString('pt-BR'), texto: textoGerado, dados: {...dadosAtuais} });
-            localStorage.setItem(HIST_KEY, JSON.stringify(historico.slice(0, 150)));
-            mostrarToast('Oferta salva no histórico! ⭐');
-        } catch { mostrarToast('Não foi possível salvar. Armazenamento cheio ou bloqueado.', true); }
-    }
-    function renderizarHistorico() {
-        const termo = (document.getElementById('buscaHistorico').value || '').toLowerCase();
-        const lista = document.getElementById('historicoLista'); lista.replaceChildren();
-        const dados = lerHistorico().filter(i => (i.dados?.titulo || '').toLowerCase().includes(termo) || (i.dados?.loja || '').toLowerCase().includes(termo));
-        if (!dados.length) { const empty = document.createElement('p'); empty.className = 'helper-text'; empty.textContent = 'Nenhuma oferta encontrada.'; lista.append(empty); return; }
-        dados.forEach(item => {
-            const box = document.createElement('div'); box.className = 'batch-item';
-            const heading = document.createElement('div'); heading.className = 'batch-item-title'; heading.textContent = item.dados.titulo + ' • ' + item.data;
-            const content = document.createElement('div'); content.className = 'batch-item-text'; content.textContent = item.texto;
-            const actions = document.createElement('div'); actions.className = 'batch-item-actions';
-            const buttons = [
-                ['📋 Copiar', () => copiarTextoItem(item.texto)],
-                ['✏️ Editar', () => carregarHistorico(item)],
-                ['WhatsApp', () => enviarWhatsItem(item.texto)],
-                ['🗑️ Excluir', () => excluirHistorico(item.id)]
-            ];
-            buttons.forEach(([label, fn]) => { const b = document.createElement('button'); b.className = 'btn-copy'; b.textContent = label; b.onclick = fn; actions.append(b); });
-            box.append(heading, content, actions); lista.append(box);
-        });
-    }
-    function carregarHistorico(item) {
-        const d = item.dados || {};
-        const campos = { link:d.link, titulo:d.titulo, comentario:d.comentario, precoAtual:d.precoAtual, precoAntigo:d.precoAntigo, cupom:d.cupom, precoCupom:d.precoCupom };
-        Object.entries(campos).forEach(([id,value]) => { document.getElementById(id).value = value ?? ''; });
-        document.getElementById('pixCheckbox').checked = !!d.isPix;
-        document.getElementById('pixLabel').classList.toggle('active', !!d.isPix);
-        const tab = document.querySelector('.tab'); mudarTab('unico', tab);
-        detectarLoja(); descontoAtual(); gerarAnuncio(); window.scrollTo({top:0,behavior:'smooth'});
-    }
-    function excluirHistorico(id) {
-        if (!confirm('Excluir esta oferta do histórico?')) return;
-        try { localStorage.setItem(HIST_KEY, JSON.stringify(lerHistorico().filter(i => i.id !== id))); renderizarHistorico(); }
-        catch { mostrarToast('Não foi possível excluir.', true); }
-    }
-    function exportarHistorico() {
-        const blob = new Blob([JSON.stringify(lerHistorico(), null, 2)], {type:'application/json'});
-        const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href=url; a.download='curio-promos-historico.json'; a.click(); setTimeout(()=>URL.revokeObjectURL(url),1500);
-    }
-    // A detecção de loja não deve alterar o badge do formulário durante o processamento em lote.
-    const detectarLojaOriginal = detectarLoja;
-    detectarLoja = function(link = null) {
-        if (link !== null) {
-            const host = (() => { try { return new URL(link).hostname.toLowerCase(); } catch { return ''; } })();
-            if (host === 'shope.ee' || host === 'shopee.com.br' || host.endsWith('.shopee.com.br') || host === 'shopee.com' || host.endsWith('.shopee.com')) return 'shopee';
-            if (host.includes('mercadolivre') || host.includes('mercadolibre') || host === 'ml.com' || host.endsWith('.ml.com')) return 'ml';
-            return 'unknown';
-        }
-        const value = document.getElementById('link').value.trim();
-        const loja = detectarLoja(value);
-        const badge = document.getElementById('storeBadge');
-        badge.style.display = loja === 'unknown' ? 'none' : 'inline-block';
-        badge.className = 'store-badge ' + loja;
-        badge.textContent = loja === 'shopee' ? '🛒 Shopee' : '🛍️ Mercado Livre';
-        return loja;
-    };
-
 </script>
 
 </body>
