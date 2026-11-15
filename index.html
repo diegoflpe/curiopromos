@@ -249,6 +249,7 @@
         }
         .store-badge.ml { background: #ffe600; color: #000; }
         .store-badge.shopee { background: #ee4d2d; color: #fff; }
+        .store-badge.amazon { background: #ff9900; color: #000; }
         .store-badge.unknown { background: #555; color: #fff; }
     </style>
 </head>
@@ -268,7 +269,7 @@
         <div class="input-group">
             <label>🔗 Link de Afiliado <span id="storeBadge" class="store-badge unknown" style="display:none;"></span></label>
             <div class="input-with-btn">
-                <input type="url" id="link" placeholder="https://mercadolivre.com/sec/... ou https://shopee.com.br/..." oninput="detectarLoja()">
+                <input type="url" id="link" placeholder="https://mercadolivre.com/sec/... ou https://shopee.com.br/... ou https://amazon.com.br/..." oninput="detectarLoja()">
                 <button class="btn-paste" onclick="colarLink()" title="Colar da área de transferência">📋</button>
                 <button class="btn-paste" onclick="buscarDadosLink()" title="Buscar dados do produto">🔍</button>
             </div>
@@ -356,7 +357,7 @@
     <div id="tabLote" class="batch-area">
         <div class="input-group">
             <label>🔗 Links de Afiliado (um por linha)</label>
-            <textarea id="linksLote" rows="6" placeholder="https://mercadolivre.com/sec/abc123&#10;https://shopee.com.br/..."></textarea>
+            <textarea id="linksLote" rows="6" placeholder="https://mercadolivre.com/sec/abc123&#10;https://shopee.com.br/...&#10;https://amazon.com.br/..."></textarea>
             <div class="helper-text">Cole vários links (um por linha). O sistema tentará buscar título e preço automaticamente.</div>
         </div>
 
@@ -451,6 +452,9 @@
         if (url.includes('shopee.com.br') || url.includes('shope.ee') || url.includes('shopee.com')) {
             loja = 'shopee';
         }
+        else if (url.includes('amazon.') || url.includes('amzn.to') || url.includes('a.co')) {
+            loja = 'amazon';
+        }
         else if (url.includes('mercadolivre') || url.includes('mercadolibre') || url.includes('ml.com') || url.includes('mercl')) {
             loja = 'ml';
         }
@@ -458,6 +462,10 @@
         if (loja === 'shopee') {
             badge.textContent = '🛒 Shopee';
             badge.className = 'store-badge shopee';
+            badge.style.display = 'inline-block';
+        } else if (loja === 'amazon') {
+            badge.textContent = '📦 Amazon';
+            badge.className = 'store-badge amazon';
             badge.style.display = 'inline-block';
         } else if (loja === 'ml') {
             badge.textContent = '🛍️ Mercado Livre';
@@ -524,6 +532,8 @@
                     .replace(/^Mercado Livre\s*[-|]\s*/i, '')
                     .replace(/\s*\|\s*Shopee.*$/i, '')
                     .replace(/\s*-\s*Shopee.*$/i, '')
+                    .replace(/\s*\|\s*Amazon.*$/i, '')
+                    .replace(/\s*-\s*Amazon.*$/i, '')
                     .trim();
                 document.getElementById('titulo').value = titulo;
             }
@@ -605,13 +615,17 @@
             if (!isNaN(precoCupom) && precoCupom > 0) textoGerado += `💥 Preço final com cupom: ${formatarMoeda(precoCupom)}\n`;
         }
 
-if (loja === 'shopee') {
-    textoGerado += `\nCompre aqui 👇\n${link}`;
-} else {
-    textoGerado += `\n👉 ${link}`;
-}
+        if (loja === 'shopee') {
+            textoGerado += `\nCompre aqui 👇\n${link}`;
+            textoGerado += `\n\n🎟️ Resgate os cupons aqui:\nhttps://s.shopee.com.br/9zzKf0aJV8`;
+        } else if (loja === 'amazon') {
+            textoGerado += `\n👉 ${link}`;
+            textoGerado += `\n\nFRETE GRÁTIS PRIME 🚚\n\n🧡 Teste o prime grátis por 30 dias e cancele quando quiser\nhttps://link.amazon/B09yJ3i1Z`;
+        } else {
+            textoGerado += `\n👉 ${link}`;
+        }
 
-textoGerado += `\n\n*_⚡ Aproveite! Condição especial por tempo limitado._*`;
+        textoGerado += `\n\n*_⚡ Aproveite! Condição especial por tempo limitado._*`;
 
 
         dadosAtuais = { comentario, titulo, precoAtual, precoAntigo, cupom, precoCupom, desconto, loja, link, isPix };
@@ -709,6 +723,8 @@ textoGerado += `\n\n*_⚡ Aproveite! Condição especial por tempo limitado._*`;
         const cardCta = document.getElementById('cardCta');
         if (d.loja === 'shopee') {
             cardCta.textContent = '👇 COMPRE AQUI 👇';
+        } else if (d.loja === 'amazon') {
+            cardCta.textContent = '📦 COMPRE NA AMAZON 📦';
         } else {
             cardCta.textContent = '👉 LINK NA DESCRIÇÃO / COMENTÁRIO';
         }
@@ -794,6 +810,8 @@ textoGerado += `\n\n*_⚡ Aproveite! Condição especial por tempo limitado._*`;
                                    .replace(/^Mercado Livre\s*[-|]\s*/i, '')
                                    .replace(/\s*\|\s*Shopee.*$/i, '')
                                    .replace(/\s*-\s*Shopee.*$/i, '')
+                                   .replace(/\s*\|\s*Amazon.*$/i, '')
+                                   .replace(/\s*-\s*Amazon.*$/i, '')
                                    .trim();
                 }
 
@@ -823,6 +841,10 @@ textoGerado += `\n\n*_⚡ Aproveite! Condição especial por tempo limitado._*`;
 
                 if (lojaLote === 'shopee') {
                     texto += `\n👇 Compre aqui 👇\n${link}`;
+                    texto += `\n\n🎟️ Resgate os cupons aqui:\nhttps://s.shopee.com.br/9zzKf0aJV8`;
+                } else if (lojaLote === 'amazon') {
+                    texto += `\n👉 ${link}`;
+                    texto += `\n\nFRETE GRÁTIS PRIME 🚚\n\n🧡 Teste o prime grátis por 30 dias e cancele quando quiser\nhttps://link.amazon/B09yJ3i1Z`;
                 } else {
                     texto += `\n👉 ${link}`;
                 }
