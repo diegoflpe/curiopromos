@@ -19,6 +19,8 @@
             --accent-orange: #ff9800;
             --accent-red: #ff5252;
             --accent-pix: #32bcad;
+            --accent-shopee: #ee4d2d;
+            --accent-amazon: #ff9900;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
@@ -118,6 +120,68 @@
         }
         .pix-toggle .pix-label.active { color: var(--accent-pix); }
         .pix-icon { font-size: 1.1rem; }
+
+        /* Flags específicas por loja */
+        .flag-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: -5px;
+            margin-bottom: 15px;
+            padding: 10px 12px;
+            background: var(--input-bg);
+            border-radius: 8px;
+            border: 1px solid #333;
+            animation: fadeIn 0.3s ease;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .flag-toggle {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            user-select: none;
+            width: 100%;
+            margin: 0;
+            padding: 0;
+            background: transparent;
+            border: none;
+            color: var(--text-primary);
+            font-size: 0.9rem;
+            font-weight: 600;
+            justify-content: flex-start;
+        }
+        .flag-toggle input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            margin: 0;
+            padding: 0;
+            flex-shrink: 0;
+        }
+        .flag-toggle .flag-label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+        .flag-toggle .flag-label.active { color: var(--accent-green); }
+
+        .flag-row.shopee-flag { border-left: 3px solid var(--accent-shopee); }
+        .flag-row.shopee-flag input[type="checkbox"] { accent-color: var(--accent-shopee); }
+        .flag-row.shopee-flag .flag-label.active { color: var(--accent-shopee); }
+
+        .flag-row.amazon-flag { border-left: 3px solid var(--accent-amazon); }
+        .flag-row.amazon-flag input[type="checkbox"] { accent-color: var(--accent-amazon); }
+        .flag-row.amazon-flag .flag-label.active { color: var(--accent-amazon); }
+
+        .flag-row.amazon-prime-flag { border-left: 3px solid #00a8e1; }
+        .flag-row.amazon-prime-flag input[type="checkbox"] { accent-color: #00a8e1; }
+        .flag-row.amazon-prime-flag .flag-label.active { color: #00a8e1; }
 
         /* Campo de anotações */
         .notes-area {
@@ -249,6 +313,7 @@
         }
         .store-badge.ml { background: #ffe600; color: #000; }
         .store-badge.shopee { background: #ee4d2d; color: #fff; }
+        .store-badge.amazon { background: #ff9900; color: #000; }
         .store-badge.unknown { background: #555; color: #fff; }
     </style>
 </head>
@@ -268,11 +333,44 @@
         <div class="input-group">
             <label>🔗 Link de Afiliado <span id="storeBadge" class="store-badge unknown" style="display:none;"></span></label>
             <div class="input-with-btn">
-                <input type="url" id="link" placeholder="https://mercadolivre.com/sec/... ou https://shopee.com.br/..." oninput="detectarLoja()">
+                <input type="url" id="link" placeholder="https://mercadolivre.com/sec/... ou https://shopee.com.br/... ou https://amazon.com.br/..." oninput="detectarLoja()">
                 <button class="btn-paste" onclick="colarLink()" title="Colar da área de transferência">📋</button>
                 <button class="btn-paste" onclick="buscarDadosLink()" title="Buscar dados do produto">🔍</button>
             </div>
             <div class="helper-text">Dica: o botão 🔍 tenta puxar o título automaticamente.</div>
+        </div>
+
+        <!-- Flag Shopee (habilitada apenas para links Shopee) -->
+        <div class="flag-row shopee-flag" id="shopeeFlagRow" style="display:none;">
+            <label class="flag-toggle">
+                <input type="checkbox" id="shopeeCupomCheckbox" onchange="toggleShopeeCupom()">
+                <span class="flag-label" id="shopeeCupomLabel">
+                    <span>🎟️</span>
+                    <span>Incluir cupons Shopee</span>
+                </span>
+            </label>
+        </div>
+
+        <!-- Flag Amazon: Programe e Poupe (habilitada apenas para links Amazon) -->
+        <div class="flag-row amazon-flag" id="amazonProgrameFlagRow" style="display:none;">
+            <label class="flag-toggle">
+                <input type="checkbox" id="amazonProgrameCheckbox" onchange="toggleAmazonPrograme()">
+                <span class="flag-label" id="amazonProgrameLabel">
+                    <span>💰</span>
+                    <span>Incluir "Programe e Poupe"</span>
+                </span>
+            </label>
+        </div>
+
+        <!-- Flag Amazon Prime (habilitada apenas para links Amazon) -->
+        <div class="flag-row amazon-prime-flag" id="amazonPrimeFlagRow" style="display:none;">
+            <label class="flag-toggle">
+                <input type="checkbox" id="amazonPrimeCheckbox" onchange="toggleAmazonPrime()">
+                <span class="flag-label" id="amazonPrimeLabel">
+                    <span>🚚</span>
+                    <span>Incluir Frete Grátis Prime</span>
+                </span>
+            </label>
         </div>
 
         <div class="input-group">
@@ -356,7 +454,7 @@
     <div id="tabLote" class="batch-area">
         <div class="input-group">
             <label>🔗 Links de Afiliado (um por linha)</label>
-            <textarea id="linksLote" rows="6" placeholder="https://mercadolivre.com/sec/abc123&#10;https://shopee.com.br/..."></textarea>
+            <textarea id="linksLote" rows="6" placeholder="https://mercadolivre.com/sec/abc123&#10;https://shopee.com.br/...&#10;https://amazon.com.br/..."></textarea>
             <div class="helper-text">Cole vários links (um por linha). O sistema tentará buscar título e preço automaticamente.</div>
         </div>
 
@@ -405,6 +503,11 @@
     let textoGerado = "";
     let dadosAtuais = {};
 
+    // Constantes de textos adicionais
+    const TEXTO_SHOPEE_CUPONS = `🎟️ Resgate os cupons aqui: \nhttps://s.shopee.com.br/9zzKf0aJV8`;
+    const TEXTO_AMAZON_PROGRAME = `PRA CHEGAR NO VALOR:\n* selecione: programe e poupe (cancele quando quiser)\n* desconto na finalização`;
+    const TEXTO_AMAZON_PRIME = `FRETE GRÁTIS PRIME 🚚\n\n🧡 Teste o prime grátis por 30 dias e cancele quando quiser \nhttps://link.amazon/B09yJ3i1Z`;
+
     // ========== UTILITÁRIOS ==========
     function mostrarToast(msg, isError = false) {
         const toast = document.getElementById('toast');
@@ -436,6 +539,40 @@
         }
     }
 
+    // ========== TOGGLE FLAGS SHOPEE/AMAZON ==========
+    function toggleShopeeCupom() {
+        const checkbox = document.getElementById('shopeeCupomCheckbox');
+        const label = document.getElementById('shopeeCupomLabel');
+        if (checkbox.checked) {
+            label.classList.add('active');
+            mostrarToast('🎟️ Cupons Shopee ativados!');
+        } else {
+            label.classList.remove('active');
+        }
+    }
+
+    function toggleAmazonPrograme() {
+        const checkbox = document.getElementById('amazonProgrameCheckbox');
+        const label = document.getElementById('amazonProgrameLabel');
+        if (checkbox.checked) {
+            label.classList.add('active');
+            mostrarToast('💰 Programe e Poupe ativado!');
+        } else {
+            label.classList.remove('active');
+        }
+    }
+
+    function toggleAmazonPrime() {
+        const checkbox = document.getElementById('amazonPrimeCheckbox');
+        const label = document.getElementById('amazonPrimeLabel');
+        if (checkbox.checked) {
+            label.classList.add('active');
+            mostrarToast('🚚 Frete Grátis Prime ativado!');
+        } else {
+            label.classList.remove('active');
+        }
+    }
+
     // ========== DETECTAR LOJA ==========
     function detectarLoja(link = null) {
         const url = (link || document.getElementById('link').value || '').toLowerCase().trim();
@@ -445,11 +582,15 @@
 
         if (!url) {
             badge.style.display = 'none';
+            atualizarFlagsLoja('unknown');
             return 'unknown';
         }
 
         if (url.includes('shopee.com.br') || url.includes('shope.ee') || url.includes('shopee.com')) {
             loja = 'shopee';
+        }
+        else if (url.includes('amazon.com.br') || url.includes('amazon.com') || url.includes('amzn.to') || url.includes('a.co')) {
+            loja = 'amazon';
         }
         else if (url.includes('mercadolivre') || url.includes('mercadolibre') || url.includes('ml.com') || url.includes('mercl')) {
             loja = 'ml';
@@ -459,6 +600,10 @@
             badge.textContent = '🛒 Shopee';
             badge.className = 'store-badge shopee';
             badge.style.display = 'inline-block';
+        } else if (loja === 'amazon') {
+            badge.textContent = '📦 Amazon';
+            badge.className = 'store-badge amazon';
+            badge.style.display = 'inline-block';
         } else if (loja === 'ml') {
             badge.textContent = '🛍️ Mercado Livre';
             badge.className = 'store-badge ml';
@@ -467,7 +612,37 @@
             badge.style.display = 'none';
         }
 
+        atualizarFlagsLoja(loja);
         return loja;
+    }
+
+    // ========== ATUALIZAR VISIBILIDADE DAS FLAGS ==========
+    function atualizarFlagsLoja(loja) {
+        const shopeeRow = document.getElementById('shopeeFlagRow');
+        const amazonProgrameRow = document.getElementById('amazonProgrameFlagRow');
+        const amazonPrimeRow = document.getElementById('amazonPrimeFlagRow');
+
+        // Shopee
+        if (loja === 'shopee') {
+            shopeeRow.style.display = 'flex';
+        } else {
+            shopeeRow.style.display = 'none';
+            document.getElementById('shopeeCupomCheckbox').checked = false;
+            document.getElementById('shopeeCupomLabel').classList.remove('active');
+        }
+
+        // Amazon
+        if (loja === 'amazon') {
+            amazonProgrameRow.style.display = 'flex';
+            amazonPrimeRow.style.display = 'flex';
+        } else {
+            amazonProgrameRow.style.display = 'none';
+            amazonPrimeRow.style.display = 'none';
+            document.getElementById('amazonProgrameCheckbox').checked = false;
+            document.getElementById('amazonProgrameLabel').classList.remove('active');
+            document.getElementById('amazonPrimeCheckbox').checked = false;
+            document.getElementById('amazonPrimeLabel').classList.remove('active');
+        }
     }
 
     // ========== COLAR LINK ==========
@@ -524,6 +699,7 @@
                     .replace(/^Mercado Livre\s*[-|]\s*/i, '')
                     .replace(/\s*\|\s*Shopee.*$/i, '')
                     .replace(/\s*-\s*Shopee.*$/i, '')
+                    .replace(/\s*[-|]\s*Amazon\.com\.br.*$/i, '')
                     .trim();
                 document.getElementById('titulo').value = titulo;
             }
@@ -573,6 +749,10 @@
         const comentario = document.getElementById('comentario').value.trim();
         const isPix = document.getElementById('pixCheckbox').checked;
 
+        const shopeeCupomAtivo = document.getElementById('shopeeCupomCheckbox').checked;
+        const amazonProgrameAtivo = document.getElementById('amazonProgrameCheckbox').checked;
+        const amazonPrimeAtivo = document.getElementById('amazonPrimeCheckbox').checked;
+
         if (!link || !titulo || isNaN(precoAtual)) {
             mostrarToast('Preencha Link, Título e Preço Atual.', true);
             return;
@@ -599,20 +779,34 @@
         }
         textoGerado += `✅ Por: ${formatarMoeda(precoAtual)}${pixSuffix}${desconto}\n`;
 
-        // 🔥 Cupom formatado como código inline no WhatsApp (entre crases)
+        // Cupom manual (se preenchido)
         if (cupom) {
             textoGerado += `🎟️ Cupom: \`${cupom}\`\n`;
             if (!isNaN(precoCupom) && precoCupom > 0) textoGerado += `💥 Preço final com cupom: ${formatarMoeda(precoCupom)}\n`;
         }
 
-if (loja === 'shopee') {
-    textoGerado += `\nCompre aqui 👇\n${link}`;
-} else {
-    textoGerado += `\n👉 ${link}`;
-}
+        // Adiciona texto extra para Shopee (cupons)
+        if (loja === 'shopee' && shopeeCupomAtivo) {
+            textoGerado += `\n${TEXTO_SHOPEE_CUPONS}\n`;
+        }
 
-textoGerado += `\n\n*_⚡ Aproveite! Condição especial por tempo limitado._*`;
+        // Adiciona texto extra para Amazon (Programe e Poupe)
+        if (loja === 'amazon' && amazonProgrameAtivo) {
+            textoGerado += `\n${TEXTO_AMAZON_PROGRAME}\n`;
+        }
 
+        // Adiciona texto extra para Amazon (Prime)
+        if (loja === 'amazon' && amazonPrimeAtivo) {
+            textoGerado += `\n${TEXTO_AMAZON_PRIME}\n`;
+        }
+
+        if (loja === 'shopee') {
+            textoGerado += `\nCompre aqui 👇\n${link}`;
+        } else {
+            textoGerado += `\n👉 ${link}`;
+        }
+
+        textoGerado += `\n\n*_⚡ Aproveite! Condição especial por tempo limitado._*`;
 
         dadosAtuais = { comentario, titulo, precoAtual, precoAntigo, cupom, precoCupom, desconto, loja, link, isPix };
 
@@ -634,6 +828,18 @@ textoGerado += `\n\n*_⚡ Aproveite! Condição especial por tempo limitado._*`;
         });
         document.getElementById('pixCheckbox').checked = false;
         document.getElementById('pixLabel').classList.remove('active');
+        
+        document.getElementById('shopeeCupomCheckbox').checked = false;
+        document.getElementById('shopeeCupomLabel').classList.remove('active');
+        document.getElementById('amazonProgrameCheckbox').checked = false;
+        document.getElementById('amazonProgrameLabel').classList.remove('active');
+        document.getElementById('amazonPrimeCheckbox').checked = false;
+        document.getElementById('amazonPrimeLabel').classList.remove('active');
+        
+        document.getElementById('shopeeFlagRow').style.display = 'none';
+        document.getElementById('amazonProgrameFlagRow').style.display = 'none';
+        document.getElementById('amazonPrimeFlagRow').style.display = 'none';
+        
         textoGerado = "";
         document.getElementById('resultBox').textContent = '';
         document.getElementById('resultArea').style.display = 'none';
@@ -698,7 +904,6 @@ textoGerado += `\n\n*_⚡ Aproveite! Condição especial por tempo limitado._*`;
         const pixBadge = d.isPix ? ' <span class="card-pix-badge">💠 no Pix</span>' : '';
         document.getElementById('cardNewPrice').innerHTML = `Por: ${formatarMoeda(d.precoAtual)}${d.desconto}${pixBadge}`;
 
-        // 🔥 Cupom com estilo de código no card
         if (d.cupom) {
             document.getElementById('cardCoupon').innerHTML = `🎟️ CUPOM: <code>${d.cupom}</code>`;
             document.getElementById('cardCoupon').style.display = 'inline-block';
@@ -794,6 +999,7 @@ textoGerado += `\n\n*_⚡ Aproveite! Condição especial por tempo limitado._*`;
                                    .replace(/^Mercado Livre\s*[-|]\s*/i, '')
                                    .replace(/\s*\|\s*Shopee.*$/i, '')
                                    .replace(/\s*-\s*Shopee.*$/i, '')
+                                   .replace(/\s*[-|]\s*Amazon\.com\.br.*$/i, '')
                                    .trim();
                 }
 
