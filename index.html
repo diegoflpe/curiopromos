@@ -349,7 +349,7 @@
                 <input type="checkbox" id="amazonProgrameCheckbox" onchange="toggleAmazonPrograme()">
                 <span class="flag-label" id="amazonProgrameLabel">
                     <span>💰</span>
-                    <span>Incluir "Programe e Poupe"</span>
+                    <span>Incluir "Programe e Poupe" (abaixo do link)</span>
                 </span>
             </label>
         </div>
@@ -360,7 +360,7 @@
                 <input type="checkbox" id="amazonPrimeCheckbox" onchange="toggleAmazonPrime()">
                 <span class="flag-label" id="amazonPrimeLabel">
                     <span>🚚</span>
-                    <span>Incluir Frete Grátis Prime</span>
+                    <span>Incluir Frete Grátis Prime (abaixo do link)</span>
                 </span>
             </label>
         </div>
@@ -789,15 +789,6 @@
             if (!isNaN(precoCupom) && precoCupom > 0) textoGerado += `💥 Preço final com cupom: ${formatarMoeda(precoCupom)}\n`;
         }
 
-        // Textos Amazon (antes do link)
-        if (loja === 'amazon' && amazonProgrameAtivo) {
-            textoGerado += `\n${TEXTO_AMAZON_PROGRAME}\n`;
-        }
-
-        if (loja === 'amazon' && amazonPrimeAtivo) {
-            textoGerado += `\n${TEXTO_AMAZON_PRIME}\n`;
-        }
-
         // Link do produto
         if (loja === 'shopee') {
             textoGerado += `\nCompre aqui 👇\n${link}`;
@@ -807,6 +798,15 @@
             }
         } else {
             textoGerado += `\n👉 ${link}`;
+        }
+
+        // Textos Amazon (AGORA DEPOIS do link do produto)
+        if (loja === 'amazon' && amazonProgrameAtivo) {
+            textoGerado += `\n\n${TEXTO_AMAZON_PROGRAME}`;
+        }
+
+        if (loja === 'amazon' && amazonPrimeAtivo) {
+            textoGerado += `\n\n${TEXTO_AMAZON_PRIME}`;
         }
 
         textoGerado += `\n\n*_⚡ Aproveite! Condição especial por tempo limitado._*`;
