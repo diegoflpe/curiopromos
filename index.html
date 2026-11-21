@@ -65,12 +65,10 @@
         .result-area { margin-top: 25px; display: none; }
         .result-box { background-color: #000; padding: 15px; border-radius: 8px; border: 1px solid #333; white-space: pre-wrap; font-family: monospace; font-size: 0.95rem; line-height: 1.5; color: #ddd; margin-bottom: 15px;}
 
-        /* Templates de comentário */
         .templates { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
         .template-btn { padding: 6px 10px; background: var(--input-bg); border: 1px solid #444; border-radius: 20px; color: var(--text-secondary); font-size: 0.75rem; cursor: pointer; transition: all 0.2s; width: auto; margin: 0; }
         .template-btn:hover { background: var(--accent-green); color: #000; border-color: var(--accent-green); }
 
-        /* Botão Pix */
         .pix-row {
             display: flex;
             align-items: center;
@@ -121,7 +119,6 @@
         .pix-toggle .pix-label.active { color: var(--accent-pix); }
         .pix-icon { font-size: 1.1rem; }
 
-        /* Flags específicas por loja */
         .flag-row {
             display: flex;
             align-items: center;
@@ -183,7 +180,6 @@
         .flag-row.amazon-prime-flag input[type="checkbox"] { accent-color: #00a8e1; }
         .flag-row.amazon-prime-flag .flag-label.active { color: #00a8e1; }
 
-        /* Campo de anotações */
         .notes-area {
             margin-top: 25px;
             border-top: 1px dashed #444;
@@ -228,7 +224,6 @@
             line-height: 1.5;
         }
 
-        /* Card para exportar como imagem */
         .export-card { display: none; }
 
         #cardPreview {
@@ -273,7 +268,6 @@
         #cardPreview .card-cta { background: var(--accent-green); color: #000; padding: 12px; border-radius: 10px; text-align: center; font-weight: bold; font-size: 1.1rem; margin-top: 15px; }
         #cardPreview .card-footer { text-align: center; font-size: 0.8rem; color: #666; margin-top: 15px; }
 
-        /* Lote */
         .batch-area { display: none; }
         .batch-progress { margin-top: 15px; background: var(--input-bg); border-radius: 8px; padding: 15px; display: none; }
         .batch-progress-bar { height: 8px; background: #333; border-radius: 4px; overflow: hidden; margin-top: 10px; }
@@ -286,7 +280,6 @@
         .batch-item-actions { display: flex; gap: 5px; margin-top: 8px; }
         .batch-item-actions button { padding: 6px 10px; font-size: 0.75rem; margin: 0; flex: 1; }
 
-        /* Toast */
         .toast {
             position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(100px);
             background: var(--accent-green); color: #000; padding: 12px 24px; border-radius: 30px;
@@ -301,7 +294,6 @@
 
         .helper-text { font-size: 0.75rem; color: var(--text-secondary); margin-top: 4px; }
 
-        /* Badge de loja detectada */
         .store-badge {
             display: inline-block;
             padding: 4px 10px;
@@ -333,25 +325,25 @@
         <div class="input-group">
             <label>🔗 Link de Afiliado <span id="storeBadge" class="store-badge unknown" style="display:none;"></span></label>
             <div class="input-with-btn">
-                <input type="url" id="link" placeholder="https://mercadolivre.com/sec/... ou https://shopee.com.br/... ou https://amazon.com.br/..." oninput="detectarLoja()">
+                <input type="url" id="link" placeholder="https://mercadolivre.com/sec/... ou https://shopee.com.br/... ou https://link.amazon/..." oninput="detectarLoja()">
                 <button class="btn-paste" onclick="colarLink()" title="Colar da área de transferência">📋</button>
                 <button class="btn-paste" onclick="buscarDadosLink()" title="Buscar dados do produto">🔍</button>
             </div>
             <div class="helper-text">Dica: o botão 🔍 tenta puxar o título automaticamente.</div>
         </div>
 
-        <!-- Flag Shopee (habilitada apenas para links Shopee) -->
+        <!-- Flag Shopee -->
         <div class="flag-row shopee-flag" id="shopeeFlagRow" style="display:none;">
             <label class="flag-toggle">
                 <input type="checkbox" id="shopeeCupomCheckbox" onchange="toggleShopeeCupom()">
                 <span class="flag-label" id="shopeeCupomLabel">
                     <span>🎟️</span>
-                    <span>Incluir cupons Shopee</span>
+                    <span>Incluir cupons Shopee (abaixo do link)</span>
                 </span>
             </label>
         </div>
 
-        <!-- Flag Amazon: Programe e Poupe (habilitada apenas para links Amazon) -->
+        <!-- Flag Amazon: Programe e Poupe -->
         <div class="flag-row amazon-flag" id="amazonProgrameFlagRow" style="display:none;">
             <label class="flag-toggle">
                 <input type="checkbox" id="amazonProgrameCheckbox" onchange="toggleAmazonPrograme()">
@@ -362,7 +354,7 @@
             </label>
         </div>
 
-        <!-- Flag Amazon Prime (habilitada apenas para links Amazon) -->
+        <!-- Flag Amazon Prime -->
         <div class="flag-row amazon-prime-flag" id="amazonPrimeFlagRow" style="display:none;">
             <label class="flag-toggle">
                 <input type="checkbox" id="amazonPrimeCheckbox" onchange="toggleAmazonPrime()">
@@ -454,7 +446,7 @@
     <div id="tabLote" class="batch-area">
         <div class="input-group">
             <label>🔗 Links de Afiliado (um por linha)</label>
-            <textarea id="linksLote" rows="6" placeholder="https://mercadolivre.com/sec/abc123&#10;https://shopee.com.br/...&#10;https://amazon.com.br/..."></textarea>
+            <textarea id="linksLote" rows="6" placeholder="https://mercadolivre.com/sec/abc123&#10;https://shopee.com.br/...&#10;https://link.amazon/..."></textarea>
             <div class="helper-text">Cole vários links (um por linha). O sistema tentará buscar título e preço automaticamente.</div>
         </div>
 
@@ -539,7 +531,7 @@
         }
     }
 
-    // ========== TOGGLE FLAGS SHOPEE/AMAZON ==========
+    // ========== TOGGLE FLAGS ==========
     function toggleShopeeCupom() {
         const checkbox = document.getElementById('shopeeCupomCheckbox');
         const label = document.getElementById('shopeeCupomLabel');
@@ -586,12 +578,23 @@
             return 'unknown';
         }
 
-        if (url.includes('shopee.com.br') || url.includes('shope.ee') || url.includes('shopee.com')) {
+        // Shopee
+        if (url.includes('shopee.com.br') || url.includes('shope.ee') || url.includes('shopee.com') || url.includes('s.shopee')) {
             loja = 'shopee';
         }
-        else if (url.includes('amazon.com.br') || url.includes('amazon.com') || url.includes('amzn.to') || url.includes('a.co')) {
+        // Amazon - inclui link.amazon, amzn.to, a.co, amazon.com.br, amazon.com
+        else if (
+            url.includes('amazon.com.br') || 
+            url.includes('amazon.com') || 
+            url.includes('amzn.to') || 
+            url.includes('a.co') ||
+            url.includes('link.amazon') ||
+            url.includes('amzn.eu') ||
+            url.includes('amzn.asia')
+        ) {
             loja = 'amazon';
         }
+        // Mercado Livre
         else if (url.includes('mercadolivre') || url.includes('mercadolibre') || url.includes('ml.com') || url.includes('mercl')) {
             loja = 'ml';
         }
@@ -700,6 +703,7 @@
                     .replace(/\s*\|\s*Shopee.*$/i, '')
                     .replace(/\s*-\s*Shopee.*$/i, '')
                     .replace(/\s*[-|]\s*Amazon\.com\.br.*$/i, '')
+                    .replace(/\s*[-|]\s*Amazon\.com.*$/i, '')
                     .trim();
                 document.getElementById('titulo').value = titulo;
             }
@@ -779,29 +783,28 @@
         }
         textoGerado += `✅ Por: ${formatarMoeda(precoAtual)}${pixSuffix}${desconto}\n`;
 
-        // Cupom manual (se preenchido)
+        // Cupom manual
         if (cupom) {
             textoGerado += `🎟️ Cupom: \`${cupom}\`\n`;
             if (!isNaN(precoCupom) && precoCupom > 0) textoGerado += `💥 Preço final com cupom: ${formatarMoeda(precoCupom)}\n`;
         }
 
-        // Adiciona texto extra para Shopee (cupons)
-        if (loja === 'shopee' && shopeeCupomAtivo) {
-            textoGerado += `\n${TEXTO_SHOPEE_CUPONS}\n`;
-        }
-
-        // Adiciona texto extra para Amazon (Programe e Poupe)
+        // Textos Amazon (antes do link)
         if (loja === 'amazon' && amazonProgrameAtivo) {
             textoGerado += `\n${TEXTO_AMAZON_PROGRAME}\n`;
         }
 
-        // Adiciona texto extra para Amazon (Prime)
         if (loja === 'amazon' && amazonPrimeAtivo) {
             textoGerado += `\n${TEXTO_AMAZON_PRIME}\n`;
         }
 
+        // Link do produto
         if (loja === 'shopee') {
             textoGerado += `\nCompre aqui 👇\n${link}`;
+            // Cupons Shopee vão ABAIXO do link do produto
+            if (shopeeCupomAtivo) {
+                textoGerado += `\n\n${TEXTO_SHOPEE_CUPONS}`;
+            }
         } else {
             textoGerado += `\n👉 ${link}`;
         }
@@ -1000,6 +1003,7 @@
                                    .replace(/\s*\|\s*Shopee.*$/i, '')
                                    .replace(/\s*-\s*Shopee.*$/i, '')
                                    .replace(/\s*[-|]\s*Amazon\.com\.br.*$/i, '')
+                                   .replace(/\s*[-|]\s*Amazon\.com.*$/i, '')
                                    .trim();
                 }
 
@@ -1069,7 +1073,6 @@
         window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(texto)}`, '_blank');
     }
 
-    // Enter avança para o próximo campo
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' && e.target.tagName === 'INPUT' && !e.shiftKey) {
             e.preventDefault();
